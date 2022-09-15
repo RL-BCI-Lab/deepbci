@@ -1,0 +1,99 @@
+defaults: &defaults
+  _target_: deepbci.data_utils.data_loaders.load_data
+  load_method: load_to_memory
+  load_method_kwargs:
+    subjects: eval(list(range(1, 9+1)))
+    trials: eval(list(range(1, 10+1)))
+    data_file: eeg.csv
+    true_fs: false
+    preload_epoch_indexes: 
+      generate_sync_epochs: null
+
+groups:
+  _target_: deepbci.data_utils.Groups
+  data_groups:
+    dbci:
+    - <<: *defaults
+      data_loader: 
+        _target_: deepbci.data_utils.data_loaders.OAOutLoader
+
+    - <<: *defaults
+      data_loader: 
+        _target_: deepbci.data_utils.data_loaders.OAObsLoader
+
+    - _target_: deepbci.data_utils.data_loaders.load_data
+      load_method: load_to_memory
+      load_method_kwargs:
+        subjects: eval(list(range(1, 11+1)))
+        trials: eval(list(range(1, 10+1)))
+        data_file: eeg.csv
+        true_fs: false
+        preload_epoch_indexes: 
+          generate_sync_epochs: null
+        subject_override:
+          10:
+            trials: eval(list(range(1, 5+1)))
+          11:
+            trials: eval(list(range(1, 5+1)))
+      data_loader: 
+        _target_: deepbci.data_utils.data_loaders.BGSIntLoader
+
+    - <<: *defaults
+      data_loader: 
+        _target_: deepbci.data_utils.data_loaders.BGSObsLoader
+
+mutate:
+- apply_func:
+    select: null
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.filter
+      l_freq: 0.1
+      h_freq: 30
+      method: iir
+      verbose: False
+      iir_params:
+        order: 4
+        ftype: butter
+        output: sos
+
+# - apply_func:
+#     select: null
+#     func:
+#         _partial_: True
+#         _target_: deepbci.data_utils.mutators.filter
+#         l_freq: 3
+#         h_freq: null
+#         method: 'fir'
+
+- apply_func:
+    select: null
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.epoch
+      tmin: -0.2
+      tmax: 0.995
+      preload: true
+      picks: [eeg]
+      verbose: WARNING
+      baseline: null
+
+- compress:
+    compress_level: subject
+
+- apply_func:
+    select: [[dbci], [BGSObs, BGSInt]]
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.reject_epochs
+      reject: 
+        eeg: eval(100*1e-6)
+- apply_func:
+    select: [[dbci], [OAObs, OAOut]]
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.reject_epochs
+      reject: 
+        eeg: eval(100*1e-6)
+
+

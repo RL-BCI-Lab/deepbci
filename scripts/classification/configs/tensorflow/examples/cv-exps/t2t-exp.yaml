@@ -1,0 +1,289 @@
+exps:
+{% for subject in subjects %}
+  # Training: OAOut
+  - {{ parent_dir }}/s{{ subject }}/oaout:
+      data-cfg:
+
+        groups:
+          _target_: deepbci.data_utils.Groups
+
+          train:
+          - _target_: deepbci.data_utils.data_loaders.load_data
+            data_loader: 
+              _target_: deepbci.data_utils.data_loaders.OAOutLoader
+            load_method: load_to_memory
+            load_method_kwargs:
+              <<: {{ groups.OA_kwargs }}
+              subjects: [{{ subject }}]
+
+          test:
+          - _target_: deepbci.data_utils.data_loaders.load_data
+            data_loader: 
+              _target_: deepbci.data_utils.data_loaders.OAObsLoader
+            load_method: load_to_memory
+            load_method_kwargs:
+              <<: {{ groups.OA_kwargs }}
+              subjects: [{{ subject }}]
+
+          - _target_: deepbci.data_utils.data_loaders.load_data
+            data_loader: 
+              _target_: deepbci.data_utils.data_loaders.BGSObsLoader
+            load_method: load_to_memory
+            load_method_kwargs:
+              <<: {{ groups.BGS_kwargs }}
+              subjects: [{{ subject }}]
+
+          - _target_: deepbci.data_utils.data_loaders.load_data
+            data_loader: 
+              _target_: deepbci.data_utils.data_loaders.BGSIntLoader
+            load_method: load_to_memory
+            load_method_kwargs:
+              <<: {{ groups.BGS_kwargs }}
+              subjects: [{{ subject }}]
+
+        mutate:
+        - {{ mutate.filter }}
+        - {{ mutate.epoch }}
+        # - {{ mutate.resample }}
+        - {{ mutate.to_numpy }}
+        - {{ mutate.compress_trials }}
+        -  apply_func:
+            select: 
+              - [test]
+              - [BGSObs, BGSInt]
+            func:
+              _partial_: True
+              _target_: deepbci.data_utils.mutators.remap_labels
+              label_map: {2: 0}
+        # - {{ mutate.upsample_train }}
+        - {{ mutate.compress_datasets }}
+        - {{ mutate.rescale }}
+        - {{ mutate.apply_rescale }}
+        - {{ mutate.expand_dims }}
+        - {{ mutate.to_onehot }}
+        - {{ mutate.log_class_info }}
+
+      model-cfg:
+        model_wrapper:
+          <<: {{ model_wrapper }}
+        <<: {{ model_args }}
+
+  # Training: OAObs
+  - {{ parent_dir }}/s{{ subject }}/oaobs:
+      data-cfg:
+
+        groups:
+          _target_: deepbci.data_utils.Groups
+
+          train:
+          - _target_: deepbci.data_utils.data_loaders.load_data
+            data_loader: 
+              _target_: deepbci.data_utils.data_loaders.OAObsLoader
+            load_method: load_to_memory
+            load_method_kwargs:
+              <<: {{ groups.OA_kwargs }}
+              subjects: [{{ subject }}]
+
+          test:
+          - _target_: deepbci.data_utils.data_loaders.load_data
+            data_loader: 
+              _target_: deepbci.data_utils.data_loaders.OAOutLoader
+            load_method: load_to_memory
+            load_method_kwargs:
+              <<: {{ groups.OA_kwargs }}
+              subjects: [{{ subject }}]
+
+          - _target_: deepbci.data_utils.data_loaders.load_data
+            data_loader: 
+              _target_: deepbci.data_utils.data_loaders.BGSObsLoader
+            load_method: load_to_memory
+            load_method_kwargs:
+              <<: {{ groups.BGS_kwargs }}
+              subjects: [{{ subject }}]
+
+          - _target_: deepbci.data_utils.data_loaders.load_data
+            data_loader: 
+              _target_: deepbci.data_utils.data_loaders.BGSIntLoader
+            load_method: load_to_memory
+            load_method_kwargs:
+              <<: {{ groups.BGS_kwargs }}
+              subjects: [{{ subject }}]
+
+        mutate:
+        - {{ mutate.filter }}
+        - {{ mutate.epoch }}
+        # - {{ mutate.resample }}
+        - {{ mutate.to_numpy }}
+        - {{ mutate.compress_trials }}
+        -  apply_func:
+            select: 
+              - [test]
+              - [BGSObs, BGSInt]
+            func:
+              _partial_: True
+              _target_: deepbci.data_utils.mutators.remap_labels
+              label_map: {2: 0}
+        # - {{ mutate.upsample_train }}
+        - {{ mutate.compress_datasets }}
+        - {{ mutate.rescale }}
+        - {{ mutate.apply_rescale }}
+        - {{ mutate.expand_dims }}
+        - {{ mutate.to_onehot }}
+        - {{ mutate.log_class_info }}
+
+      model-cfg:
+        model_wrapper:
+          <<: {{ model_wrapper }}
+        <<: {{ model_args }}
+
+  # Training: BGSObs
+  - {{ parent_dir }}/s{{ subject }}/bgsobs:
+      data-cfg:
+
+        groups:
+          _target_: deepbci.data_utils.Groups
+
+          train:
+          - _target_: deepbci.data_utils.data_loaders.load_data
+            data_loader: 
+              _target_: deepbci.data_utils.data_loaders.BGSObsLoader
+            load_method: load_to_memory
+            load_method_kwargs:
+              <<: {{ groups.BGS_kwargs }}
+              subjects: [{{ subject }}]
+
+          test:
+          - _target_: deepbci.data_utils.data_loaders.load_data
+            data_loader: 
+              _target_: deepbci.data_utils.data_loaders.OAOutLoader
+            load_method: load_to_memory
+            load_method_kwargs:
+              <<: {{ groups.OA_kwargs }}
+              subjects: [{{ subject }}]
+
+          - _target_: deepbci.data_utils.data_loaders.load_data
+            data_loader: 
+              _target_: deepbci.data_utils.data_loaders.OAObsLoader
+            load_method: load_to_memory
+            load_method_kwargs:
+              <<: {{ groups.OA_kwargs }}
+              subjects: [{{ subject }}]
+
+          - _target_: deepbci.data_utils.data_loaders.load_data
+            data_loader: 
+              _target_: deepbci.data_utils.data_loaders.BGSIntLoader
+            load_method: load_to_memory
+            load_method_kwargs:
+              <<: {{ groups.BGS_kwargs }}
+              subjects: [{{ subject }}]
+
+        mutate:
+        - {{ mutate.filter }}
+        - {{ mutate.epoch }}
+        # - {{ mutate.resample }}
+        - {{ mutate.to_numpy }}
+        - {{ mutate.compress_trials }}
+        - apply_func:
+            select: 
+              - [train, test]
+              - [BGSObs]
+            func:
+              _partial_: True
+              _target_: deepbci.data_utils.mutators.remap_labels
+              label_map: {2: 0}
+        - apply_func:
+            select: 
+              - [test]
+              - [BGSInt]
+            func:
+              _partial_: True
+              _target_: deepbci.data_utils.mutators.remap_labels
+              label_map: {2: 0}
+        # - {{ mutate.upsample_train }}
+        - {{ mutate.compress_datasets }}
+        - {{ mutate.rescale }}
+        - {{ mutate.apply_rescale }}
+        - {{ mutate.expand_dims }}
+        - {{ mutate.to_onehot }}
+        - {{ mutate.log_class_info }}
+
+      model-cfg:
+        model_wrapper:
+          <<: {{ model_wrapper }}
+        <<: {{ model_args }}
+
+  # Training: BGSInt
+  - {{ parent_dir }}/s{{ subject }}/bgsint:
+      data-cfg:
+
+        groups:
+          _target_: deepbci.data_utils.Groups
+
+          train:
+          - _target_: deepbci.data_utils.data_loaders.load_data
+            data_loader: 
+              _target_: deepbci.data_utils.data_loaders.BGSIntLoader
+            load_method: load_to_memory
+            load_method_kwargs:
+              <<: {{ groups.BGS_kwargs }}
+              subjects: [{{ subject }}]
+
+          test:
+          - _target_: deepbci.data_utils.data_loaders.load_data
+            data_loader: 
+              _target_: deepbci.data_utils.data_loaders.OAOutLoader
+            load_method: load_to_memory
+            load_method_kwargs:
+              <<: {{ groups.OA_kwargs }}
+              subjects: [{{ subject }}]
+
+          - _target_: deepbci.data_utils.data_loaders.load_data
+            data_loader: 
+              _target_: deepbci.data_utils.data_loaders.OAObsLoader
+            load_method: load_to_memory
+            load_method_kwargs:
+              <<: {{ groups.OA_kwargs }}
+              subjects: [{{ subject }}]
+
+          - _target_: deepbci.data_utils.data_loaders.load_data
+            data_loader: 
+              _target_: deepbci.data_utils.data_loaders.BGSObsLoader
+            load_method: load_to_memory
+            load_method_kwargs:
+              <<: {{ groups.BGS_kwargs }}
+              subjects: [{{ subject }}]
+
+        mutate:
+        - {{ mutate.filter }}
+        - {{ mutate.epoch }}
+        # - {{ mutate.resample }}
+        - {{ mutate.to_numpy }}
+        - {{ mutate.compress_trials }}
+        - apply_func:
+            select: 
+              - [train, test]
+              - [BGSObs]
+            func:
+            - remap_labels:
+                label_map: {2: 0}
+        - apply_func:
+            select: 
+              - [test]
+              - [BGSInt]
+            func:
+            - remap_labels:
+                label_map: {2: 0}
+        # - {{ mutate.upsample_train }}
+        - {{ mutate.compress_datasets }}
+        - {{ mutate.rescale }}
+        - {{ mutate.apply_rescale }}
+        - {{ mutate.expand_dims }}
+        - {{ mutate.to_onehot }}
+        - {{ mutate.log_class_info }}
+
+      model-cfg:
+        model_wrapper:
+          <<: {{ model_wrapper }}
+        <<: {{ model_args }}
+
+{% endfor %}

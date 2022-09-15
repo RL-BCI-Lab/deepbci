@@ -1,0 +1,78 @@
+
+defaults: &defaults
+  exp_data_kwargs:
+    eeg_loader:
+      _target_: deepbci.data_utils.exp_loaders.OpenBCILoader
+      board: ganglion
+      fs: 200
+      version: 4
+    build_timestamps: True
+    fill: True
+    fill_limit: 20
+  electrodes: ['F4', 'F3', 'Fz', 'Cz']
+
+subjects: &subjects
+  1: 
+    trials: eval(list(range(1, 10+1)))
+  2: 
+    trials: eval(list(range(1, 10+1)))
+  3:
+    trials: eval(list(range(1, 10+1)))
+  4: 
+    trials: eval(list(range(1, 10+1)))
+  5: 
+    trials: eval(list(range(1, 10+1)))
+  6: 
+    trials: eval(list(range(1, 10+1)))
+  7: 
+    trials: eval(list(range(1, 10+1)))
+  8: 
+    trials: eval(list(range(1, 10+1)))
+  9: 
+    trials: eval(list(range(1, 10+1)))
+  # 10: 
+  #   trials: eval(list(range(1, 5+1)))
+  # 11: 
+  #   trials: eval(list(range(1, 5+1)))
+
+build_kwargs:
+  sync_data_kwargs:
+      padding: 2
+  build_labels_kwargs:
+    nearest_kwargs:
+      map_type: down
+  # butter_filter_kwargs:
+  #   ftype: butter_highpass_filter
+  #   order: 2 
+  #   lowcut: .1
+      
+datasets:
+  binary_goal_search/observation:
+    <<: *defaults
+    signal_types: 
+      crn: 2
+      ern: 1
+    subjects:
+      <<: *subjects
+
+  binary_goal_search/interaction:
+    <<: *defaults
+    signal_types: 
+      crn: 2
+      ern: 1
+    subjects:
+      <<: *subjects
+
+  obstacle_avoidance/observation:
+    <<: *defaults
+    signal_types: 
+      ern: 1
+    subjects:
+      <<: *subjects
+
+  obstacle_avoidance/outcome:
+    <<: *defaults
+    signal_types: 
+      ern: 1
+    subjects:
+      <<: *subjects

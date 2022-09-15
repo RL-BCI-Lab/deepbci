@@ -1,0 +1,23 @@
+# @package _global_
+
+# Override any default lists with other .yaml defaults
+defaults:
+  - override /template: dynamic
+  - override /template/network:
+    - mnist
+    - log_softmax
+  - override /template/subhooks: basic_test
+  - override /datamodule: mnist
+  - override /template/loss: nllloss
+  - override /template/optimizer: null
+  - override /trainer/logger:
+    - tensorboard
+    - csv
+    
+trainer:
+  gpus: 1
+
+job_name: mnist
+stage: test
+test_ckpt: ${oc.env:BEST_CKPT}
+

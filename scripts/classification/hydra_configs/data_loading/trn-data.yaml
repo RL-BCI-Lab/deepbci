@@ -1,0 +1,78 @@
+defaults:
+  - _self_
+
+groups:
+  train:
+    OAOut:
+      subjects: [1]
+      trials: eval(list(range(1, 8+1)))
+      data_file: eeg-order2-low0.1.csv
+      true_fs: false
+      preload_epoch_indexes:
+        generate_async_epochs:
+          step_size: 100
+          map_type: down
+          label_boundary: [-200, 200]
+      epoch_on_load:
+        tmin: 0
+        tmax: 0.695
+        preload: true
+        proj: false
+        picks: [eeg]
+        verbose: INFO
+        baseline: null
+  valid:
+    OAOut:
+      subjects: [1]
+      trials: [9]
+      data_file: eeg-order2-low0.1.csv
+      true_fs: false
+      preload_epoch_indexes:
+        generate_async_epochs:
+          step_size: 100
+          map_type: down
+          label_boundary: [-200, 200]
+      epoch_on_load:
+        tmin: 0
+        tmax: 0.695
+        preload: true
+        proj: false
+        picks: [eeg]
+        verbose: INFO
+        baseline: null
+        
+mutate:
+- apply_method:
+    select: null
+    method:
+      resample: 
+        sfreq: 128
+- compress:
+    compress_level: subject
+    select: [train]
+- apply_func:
+    select: null
+    func:
+    - to_numpy:
+# - apply_func:
+#     select: ['test', 'BGSInt']
+#     func:
+#     - remap_labels:
+#         label_map: {2: 0}
+- apply_func:
+    select: 
+    - [train]
+    func:
+    - balance:
+        btype: upsample
+- apply_func:
+    select: null
+    func:
+    - expand_dims: 
+        axis: 1
+- apply_func:
+    select: null
+    func:
+    - to_onehot:
+- compress:
+    compress_level: group

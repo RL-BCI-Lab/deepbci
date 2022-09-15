@@ -1,0 +1,61 @@
+defaults:
+  - _self_
+
+_target_: deepbci.models.wrappers.KerasWrapper
+
+model:
+  _target_: deepbci.models.networks.EEGNet
+  fs: 128
+  chs: 4
+  windows: 1
+  n_classes: 2
+  drop_rate: .5
+  conv_kern_len: 64
+  conv_filters: 8
+  depthwise_filters: 2
+  separable_filters: 16
+  norm_rate: .25
+  drop_type: dropout
+  avg_kern_b1: 4
+  avg_kern_b2: 8
+
+loss:
+  module:
+    _target_: tensorflow.keras.losses.CategoricalCrossentropy
+    name: 'categorical_crossentropy'
+
+optimizer:
+  _target_: tensorflow.keras.optimizers.Adam
+  learning_rate:  0.01
+
+
+metrics:
+  BalancedAccuracy:
+    _target_: deepbci.models.metrics.BalancedAccuracy
+  CategoricalAccuracy:
+    _target_: tensorflow.keras.metrics.CategoricalAccuracy
+  PR:
+    _target_: tensorflow.keras.metrics.AUC
+    curve: PR
+    name: PR
+  ROC:
+    _target_: tensorflow.keras.metrics.AUC
+    curve: ROC
+    name: ROC
+
+callbacks:
+  early_stopping:
+    _target_: tensorflow.keras.callbacks.EarlyStopping
+    monitor: val_balanced_accuracy
+    patience: 50
+    mode: max
+    verbose: True
+    min_delta: .01
+
+  checkpoint:
+    _target_: tensorflow.keras.callbacks.ModelCheckpoint
+    filepath: ${join:${train_path},'checkpoint'}
+    verbose: 1
+    save_best_only: True
+    monitor: val_balanced_accuracy
+    mode: max

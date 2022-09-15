@@ -1,0 +1,24 @@
+# @package _global_
+
+defaults:
+  - _self_
+
+# path to original working directory which Hydra will overwrite
+# learn more here: https://hydra.cc/docs/next/tutorials/basic/running_your_app/working_directory
+working_dir: ${hydra:runtime.cwd}
+exps_path: ${join:${working_dir},'exps'}
+working_exp_path: ${join:${exps_path},${job_name}}
+stage_path: ${join:${working_exp_path}, ${stage}}
+train_path: ${join:${working_exp_path},'train'}
+test_path: ${join:${working_exp_path},'test'}
+
+scaler_path: ${join:${test_path}, 'scaler'}
+results_dir_path: ${join:${stage_path},results}
+metrics_file: ${join:${stage_path}, metrics.csv}
+metrics_summary_file: metrics-summary.csv
+
+
+cache: ${job_name}-cache
+load_cache: ${job_name}-cache
+cache_data_path: ${join:${working_dir},'cache',${cache},'data-cache'}
+cache_yaml_path:  ${join:${working_dir},'cache',${cache},'data.yaml'}

@@ -1,0 +1,246 @@
+parent_dir: logocv-v4.1-eegnet-async
+
+subjects: [1,2,3,4,5,6,7,8,9]
+
+groups:
+  OA_kwargs:
+    subjects: [1]
+    trials: eval(list(range(1, 10+1)))
+    data_file: eeg.csv
+    true_fs: false
+    preload_epoch_indexes:
+      generate_async_epochs:
+        step_size: 100
+        map_type: down
+
+  BGS_kwargs:
+    trials: eval(list(range(1, 10+1)))
+    data_file: eeg.csv
+    true_fs: False
+    preload_epoch_indexes:
+      generate_async_epochs:
+        step_size: 100
+        map_type: down
+
+mutate:
+
+  filter:
+    apply_func:
+      select: null
+      func:
+        _partial_: True
+        _target_: deepbci.data_utils.mutators.filter
+        l_freq: 0.1
+        h_freq: 30
+        method: iir
+        verbose: False
+        iir_params:
+          order: 4
+          ftype: butter
+          output: sos
+
+  epoch:
+    apply_func:
+      select: null
+      func:
+        _partial_: True
+        _target_: deepbci.data_utils.mutators.epoch
+        tmin: 0
+        tmax: 0.695
+        preload: true
+        picks: [eeg]
+        verbose: WARNING
+        baseline: null
+
+  resample:
+    apply_method:
+      select: null
+      method:
+        name: resample
+        kwargs: 
+          sfreq: 128
+
+  to_numpy:
+    apply_func:
+      select: null
+      func:
+        _partial_: True
+        _target_: deepbci.data_utils.mutators.to_numpy
+        units: uV
+
+  upsample_train:
+    apply_func:
+      select: [train]
+      func:
+        _partial_: True
+        _target_: deepbci.data_utils.mutators.balance
+        btype: upsample
+
+  expand_dims:
+    apply_func:
+      select: null
+      func:
+        _partial_: True
+        _target_: deepbci.data_utils.mutators.expand_dims
+        axis: 1
+
+  to_onehot:
+    apply_func:
+      select: null
+      func:
+        _partial_: True
+        _target_: deepbci.data_utils.mutators.to_onehot
+
+  compress_trials:
+   compress: 
+      select: [train]
+      compress_level: subject
+
+  compress_datasets:
+    compress: 
+      select: [train]
+      compress_level: group
+
+  rescale:
+    apply_func:
+      select: [train]
+      func:
+        _partial_: True
+        _target_: deepbci.data_utils.mutators.rescale
+        scaler:
+          _target_: deepbci.data_utils.scalers.STD
+          axis: [0,2]
+        save: true 
+        filepath: scalers.pickle
+
+  apply_rescale:
+    apply_func:
+      select: [test]
+      func:
+        _partial_: True
+        _target_: deepbci.data_utils.mutators.rescale
+        load: true 
+        filepath: scalers.pickle
+          
+  log_class_info:
+    apply_func:
+      select:
+      - [train, test]
+      func:
+        _partial_: True
+        _target_: deepbci.data_utils.mutators.log_class_info
+
+model_wrapper:
+  _target_: deepbci.models.wrappers.Keras
+  model: 
+    _target_: deepbci.models.networks.EEGNet
+    fs: 200
+    chs: 4
+    windows: 1
+    n_classes: 2
+    drop_rate: .5
+    conv_kern_len: 64
+    conv_filters: 8
+    depthwise_filters: 2
+    separable_filters: 16
+    norm_rate: .25
+    drop_type: dropout
+    avg_kern_b1: 4
+    avg_kern_b2: 8
+  optimizer:
+    _target_: tensorflow.keras.optimizers.Adam
+    learning_rate:  0.01
+  loss: 
+    _target_: tensorflow.keras.losses.CategoricalCrossentropy
+    name: cross_entropy
+  metrics:
+  - _target_: deepbci.models.metrics.keras.BalancedAccuracy
+    name: bACC
+  - _target_: tensorflow.keras.metrics.CategoricalAccuracy
+    name: ACC
+  callbacks:
+  - _target_: tensorflow.keras.callbacks.TensorBoard
+    log_dir: tensorboard
+  - _target_: deepbci.models.callbacks.keras.LogToFile
+  # - _target_: tensorflow.keras.callbacks.EarlyStopping
+  #   monitor: val_bACC
+  #   patience: 20
+  #   mode: max
+  #   verbose: False
+  #   min_delta: .01
+  # - _target_: tensorflow.keras.callbacks.ModelCheckpoint
+  #   filepath: ${join:checkpoints,model}
+  #   verbose: 0
+  #   save_best_only: True
+  #   save_weights_only: False
+  #   monitor: val_bACC
+  #   mode: max
+  
+model_args:
+
+  logo_level: ['dataset', 'subject', 'trial']
+
+  seed: 0
+
+  preinstantiate:
+    allow_growth: True
+
+  dataset:
+    batch_size: 512
+    shuffle: True
+
+  fit:
+    epochs: 25
+    verbose: 0
+    class_weight: 
+      _target_: deepbci.utils.class_weight.compute_class_weight
+      y: ${get_labels:train}
+
+  save:
+    filepath: ${join:models,model}
+    weights_only: False
+
+evaluate_metrics:
+  csv:
+    bACC:
+      _partial_: True
+      _target_: sklearn.metrics.balanced_accuracy_score
+    ACC:
+      _partial_: True
+      _target_: sklearn.metrics.accuracy_score
+    tpr:
+      _partial_: True
+      _target_: sklearn.metrics.recall_score
+    ppv:
+      _partial_: True
+      _target_: sklearn.metrics.precision_score
+    tnr:
+      _partial_: True
+      _target_: sklearn.metrics.recall_score
+      pos_label: 0
+    F1: 
+      _partial_: True
+      _target_: sklearn.metrics.f1_score
+    nll:
+      _partial_: True
+      _target_: sklearn.metrics.log_loss
+    PR:
+      _partial_: True
+      _target_: deepbci.models.metrics.prc_auc_score
+      column: 1
+      pos_label: 1
+    ROC:
+      _partial_: True
+      _target_: deepbci.models.metrics.roc_auc_score
+      column: 1
+      pos_label: 1
+    confusion_matrix:
+      _partial_: True
+      _target_: sklearn.metrics.confusion_matrix
+  log:
+    - confusion_matrix
+  argmax_axis: 1
+  exclude_argmax:
+    - nll
+    - PR
+    - ROC

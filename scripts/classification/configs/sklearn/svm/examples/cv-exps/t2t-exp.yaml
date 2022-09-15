@@ -1,0 +1,193 @@
+exps:
+{% for subject in subjects %}
+  # Training: OAOut
+  - {{ parent_dir }}/s{{ subject }}/oaout:
+      data-cfg:
+
+        groups:
+          train:
+            OAOut: 
+              <<: {{ groups.OA }}
+              subjects: [{{ subject }}]
+          test:
+            OAObs: 
+              <<: {{ groups.OA }}
+              subjects: [{{ subject }}]
+            BGSObs: 
+              <<: {{ groups.BGS }}
+              subjects: [{{ subject }}]
+            BGSInt: 
+              <<: {{ groups.BGS }}
+              subjects: [{{ subject }}]
+
+        mutate:
+        - {{ mutate.filter }}
+        - {{ mutate.epoch }}
+        # - {{ mutate.resample }}
+        - {{ mutate.to_numpy }}
+        - {{ mutate.compress_trials }}
+        -  apply_func:
+            select: 
+              - [test]
+              - [BGSObs, BGSInt]
+            func:
+            - remap_labels:
+                label_map: {2: 0}
+        - {{ mutate.compress_datasets }}
+        - {{ mutate.compress_dims }}
+        - {{ mutate.rescale }}
+        - {{ mutate.apply_rescale }}
+        - {{ mutate.log_class_info }}
+
+      model-cfg:
+        model_wrapper:
+          <<: {{ model_wrapper }}
+        <<: {{ model_args }}
+
+  # Training: OAObs
+  - {{ parent_dir }}/s{{ subject }}/oaobs:
+      data-cfg:
+
+        groups:
+          train:
+            OAObs: 
+              <<: {{ groups.OA }}
+              subjects: [{{ subject }}]
+          test:
+            OAOut: 
+              <<: {{ groups.OA }}
+              subjects: [{{ subject }}]
+            BGSInt: 
+              <<: {{ groups.BGS }}
+              subjects: [{{ subject }}]
+            BGSObs: 
+              <<: {{ groups.BGS }}
+              subjects: [{{ subject }}]
+
+        mutate:
+        - {{ mutate.filter }}
+        - {{ mutate.epoch }}
+        # - {{ mutate.resample }}
+        - {{ mutate.to_numpy }}
+        - {{ mutate.compress_trials }}
+        -  apply_func:
+            select: 
+              - [test]
+              - [BGSObs, BGSInt]
+            func:
+            - remap_labels:
+                label_map: {2: 0}
+        - {{ mutate.compress_datasets }}
+        - {{ mutate.compress_dims }}
+        - {{ mutate.rescale }}
+        - {{ mutate.apply_rescale }}
+        - {{ mutate.log_class_info }}
+
+      model-cfg:
+        model_wrapper:
+          <<: {{ model_wrapper }}
+        <<: {{ model_args }}
+
+  # Training: BGSObs
+  - {{ parent_dir }}/s{{ subject }}/bgsobs:
+      data-cfg:
+
+        groups:
+          train:
+            BGSObs: 
+              <<: {{ groups.BGS }}
+              subjects: [{{ subject }}]
+          test:
+            OAOut: 
+              <<: {{ groups.OA }}
+              subjects: [{{ subject }}]
+            OAObs: 
+              <<: {{ groups.OA }}
+              subjects: [{{ subject }}]
+            BGSInt: 
+              <<: {{ groups.BGS }}
+              subjects: [{{ subject }}]
+
+        mutate:
+        - {{ mutate.filter }}
+        - {{ mutate.epoch }}
+        # - {{ mutate.resample }}
+        - {{ mutate.to_numpy }}
+        - {{ mutate.compress_trials }}
+        - apply_func:
+            select: 
+              - [train, test]
+              - [BGSObs]
+            func:
+            - remap_labels:
+                label_map: {2: 0}
+        - apply_func:
+            select: 
+              - [test]
+              - [BGSInt]
+            func:
+            - remap_labels:
+                label_map: {2: 0}
+        - {{ mutate.compress_datasets }}
+        - {{ mutate.compress_dims }}
+        - {{ mutate.rescale }}
+        - {{ mutate.apply_rescale }}
+        - {{ mutate.log_class_info }}
+
+      model-cfg:
+        model_wrapper:
+          <<: {{ model_wrapper }}
+        <<: {{ model_args }}
+
+  # Training: BGSInt
+  - {{ parent_dir }}/s{{ subject }}/bgsint:
+      data-cfg:
+
+        groups:
+          train:
+            BGSInt: 
+              <<: {{ groups.BGS }}
+              subjects: [{{ subject }}]
+          test:
+            OAOut: 
+              <<: {{ groups.OA }}
+              subjects: [{{ subject }}]
+            OAObs: 
+              <<: {{ groups.OA }}
+              subjects: [{{ subject }}]
+            BGSObs: 
+              <<: {{ groups.BGS }}
+              subjects: [{{ subject }}]
+
+        mutate:
+        - {{ mutate.filter }}
+        - {{ mutate.epoch }}
+        # - {{ mutate.resample }}
+        - {{ mutate.to_numpy }}
+        - {{ mutate.compress_trials }}
+        - apply_func:
+            select: 
+              - [train, test]
+              - [BGSInt]
+            func:
+            - remap_labels:
+                label_map: {2: 0}
+        - apply_func:
+            select: 
+              - [test]
+              - [BGSObs]
+            func:
+            - remap_labels:
+                label_map: {2: 0}
+        - {{ mutate.compress_datasets }}
+        - {{ mutate.compress_dims }}
+        - {{ mutate.rescale }}
+        - {{ mutate.apply_rescale }}
+        - {{ mutate.log_class_info }}
+
+      model-cfg:
+        model_wrapper:
+          <<: {{ model_wrapper }}
+        <<: {{ model_args }}
+
+{% endfor %}

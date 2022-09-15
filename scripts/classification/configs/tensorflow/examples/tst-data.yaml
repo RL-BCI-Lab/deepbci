@@ -1,0 +1,84 @@
+groups:
+  _target_: deepbci.data_utils.Groups
+  data_groups:
+    test:
+    - _target_: deepbci.data_utils.data_loaders.load_data
+      data_loader: 
+        _target_: deepbci.data_utils.data_loaders.OAOutLoader
+      load_method: load_to_memory
+      load_method_kwargs:
+        subjects: [1]
+        trials: [10]
+        data_file: eeg-order2-low0.1.csv
+        true_fs: false
+        preload_epoch_indexes:
+          generate_async_epochs:
+            step_size: 100
+            map_type: down
+    - _target_: deepbci.data_utils.data_loaders.load_data
+      data_loader: 
+        _target_: deepbci.data_utils.data_loaders.OAObsLoader
+      load_method: load_to_memory
+      load_method_kwargs:
+        subjects: [1]
+        trials: eval(list(range(1, 10+1)))
+        data_file: eeg-order2-low0.1.csv
+        true_fs: false
+        preload_epoch_indexes:
+          generate_async_epochs:
+            step_size: 100
+            map_type: down
+mutate:
+- apply_func:
+    select: null
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.epoch
+      tmin: 0
+      tmax: 0.695
+      preload: true
+      picks: [eeg]
+      verbose: WARNING
+      baseline: null
+
+- apply_method:
+    select: null
+    method:
+      name: resample
+      kwargs: 
+        sfreq: 128
+
+- apply_func:
+    select: null
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.to_numpy
+      units: uV
+
+# - apply_func:
+#     select: ['test', ['BGSInt', 'BGSObs']]
+#     func:
+#       _partial_: True
+#       _target_: deepbci.data_utils.mutators.remap_labels
+#       label_map: {2: 0}
+
+- apply_func:
+    select: [test]
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.rescale
+      load: true 
+      filepath: scalers.pickle
+
+- apply_func:
+    select: null
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.expand_dims
+      axis: 1
+        
+- apply_func:
+    select: null
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.to_onehot

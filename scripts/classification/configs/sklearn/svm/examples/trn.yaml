@@ -1,0 +1,47 @@
+seed: 42
+
+model_wrapper:
+  _target_: deepbci.models.wrappers.Sklearn
+  model: 
+    _target_: sklearn.svm.SVC
+    C: 1.0
+    kernel: linear
+    class_weight: 
+      _target_: deepbci.utils.class_weight.compute_class_weight
+      y: ${get_labels:train}
+
+dataset:
+  shuffle: True
+  
+save:
+  filepath: ${join:models,model.pickle}
+
+evaluate_metrics:
+  csv:
+    bACC:
+      _partial_: True
+      _target_: sklearn.metrics.balanced_accuracy_score
+    ACC:
+      _partial_: True
+      _target_: sklearn.metrics.accuracy_score
+    tpr:
+      _partial_: True
+      _target_: sklearn.metrics.recall_score
+    ppv:
+      _partial_: True
+      _target_: sklearn.metrics.precision_score
+    tnr:
+      _partial_: True
+      _target_: sklearn.metrics.recall_score
+      pos_label: 0
+    F1: 
+      _partial_: True
+      _target_: sklearn.metrics.f1_score
+    confusion_matrix:
+      _partial_: True
+      _target_: sklearn.metrics.confusion_matrix
+  log:
+    - confusion_matrix
+  argmax_axis: 1
+
+  

@@ -1,0 +1,12 @@
+# @package _global_
+# Override any default lists with other .yaml defaults
+defaults:
+  - override /model_wrapper: keras_wrapper
+  - override /data_loading: trn-data
+  - _self_
+
+directory_structure:
+  working_exp_path: ${join:${exps_path},${job_name}, {}, 'train'}
+
+job_name: hydra_example
+stage: train

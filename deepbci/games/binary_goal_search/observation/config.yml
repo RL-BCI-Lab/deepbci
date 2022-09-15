@@ -1,0 +1,25 @@
+duration: 120 # Number of frames, e.g. 120 ~= 3min
+before_start: 30 # Number of seconds
+logging: True
+
+scale: 2
+fps: 1
+screen_height: 420
+screen_width: 420
+state_width: 420
+state_height: 420
+agent_width: 50
+agent_height: 50
+goal_width: 50
+goal_height: 50
+no_action: 0
+left_action: 0
+right_action: 1
+base_reward: 0
+incorrect_reward: 1
+correct_reward: 2
+error_rate: .2 # chance to make incorrect step
+delay: [1.2, 1.2] # delay range between actions [min, max] (seconds)
+jitter: [.01, .1] # random jitter range added to delay [min, max] (seconds)
+step_size: 50 # step size of agent
+goal_distance: 150 # distance goal is from agent

@@ -1,0 +1,121 @@
+groups:
+  _target_: deepbci.data_utils.Groups
+  data_groups:
+    train:
+    - _target_: deepbci.data_utils.data_loaders.load_data
+      data_loader: 
+        _target_: deepbci.data_utils.data_loaders.OAOutLoader
+      load_method: load_to_memory
+      load_method_kwargs:
+        subjects: [1]
+        trials: eval(list(range(1, 7+1)))
+        data_file: eeg-order2-low0.1.csv
+        true_fs: false
+        preload_epoch_indexes:
+          generate_async_epochs:
+            step_size: 100
+            map_type: down
+            label_boundary: [-200, 200]
+    - _target_: deepbci.data_utils.data_loaders.load_data
+      data_loader: 
+        _target_: deepbci.data_utils.data_loaders.OAOutLoader
+      load_method: load_to_memory
+      load_method_kwargs:
+        subjects: [1]
+        trials: [8]
+        data_file: eeg-order2-low0.1.csv
+        true_fs: false
+        preload_epoch_indexes:
+          generate_async_epochs:
+            step_size: 100
+            map_type: down
+            label_boundary: [-200, 200]
+            
+    valid:
+    - _target_: deepbci.data_utils.data_loaders.load_data
+      data_loader: 
+        _target_: deepbci.data_utils.data_loaders.OAOutLoader
+      load_method: load_to_memory
+      load_method_kwargs:
+        subjects: [1]
+        trials: [9]
+        data_file: eeg-order2-low0.1.csv
+        true_fs: false
+        preload_epoch_indexes:
+          generate_async_epochs:
+            step_size: 100
+            map_type: down
+            label_boundary: [-200, 200]
+        
+mutate:
+- apply_func:
+    select: null
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.epoch
+      tmin: 0
+      tmax: 0.695
+      preload: true
+      picks: [eeg]
+      verbose: WARNING
+      baseline: null
+
+- apply_method:
+    select: null
+    method:
+      name: resample
+      kwargs: 
+        sfreq: 128
+
+- compress:
+    select: [train]
+    compress_level: subject
+
+- apply_func:
+    select: null
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.to_numpy
+      units: uV
+
+- apply_func:
+    select: [train]
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.balance
+      btype: upsample
+
+- compress:
+    select: null
+    compress_level: group
+
+- apply_func:
+    select: [train]
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.rescale
+      scaler:
+        _target_: deepbci.data_utils.scalers.STD
+        axis: [0,2]
+      save: true 
+      filepath: scalers.pickle
+- apply_func:
+    select: [valid]
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.rescale
+      load: true 
+      filepath: scalers.pickle
+
+- apply_func:
+    select: null
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.expand_dims
+      axis: 1
+        
+- apply_func:
+    select: null
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.to_onehot

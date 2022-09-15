@@ -1,0 +1,17 @@
+channels:
+  - plotly
+  - conda-forge 
+dependencies:
+  - conda-forge::rpy2
+  - anaconda::cmake
+  - plotly::plotly-orca
+  - plotly::plotly
+  - conda-forge::dash
+  - conda-forge::dash-daq
+  - plotly::jupyter-dash
+  - conda-forge::mne
+  - conda-forge::tqdm
+  - pip:
+    - pygame
+    - hydra-core
+    - zepid

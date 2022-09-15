@@ -1,0 +1,64 @@
+defaults: &defaults
+  _target_: deepbci.data_utils.data_loaders.load_data
+  load_method: load_to_memory
+  load_method_kwargs:
+    subjects: [1] #eval(list(range(1, 9+1)))
+    trials: eval(list(range(1, 1+1)))
+    data_file: eeg.csv
+    true_fs: false
+    load_state_info: True
+    load_state_info_kwargs:
+      # resize: (84, 84)
+      clean: True
+    preload_epoch_indexes: 
+      generate_sync_epochs: null
+
+groups:
+  _target_: deepbci.data_utils.Groups
+  data_groups:
+    dbci:
+    - <<: *defaults
+      data_loader: 
+        _target_: deepbci.data_utils.data_loaders.OAOutLoader
+
+    # - <<: *defaults
+    #   data_loader: 
+    #     _target_: deepbci.data_utils.data_loaders.OAObsLoader
+
+    # - <<: *defaults
+    #   data_loader: 
+    #     _target_: deepbci.data_utils.data_loaders.BGSIntLoader
+
+    # - <<: *defaults
+    #   data_loader: 
+    #     _target_: deepbci.data_utils.data_loaders.BGSObsLoader
+mutate:
+# - apply_func:
+#     select: null
+#     func:
+#       _partial_: True
+#       _target_: deepbci.data_utils.mutators.filter
+#       l_freq: 0.1
+#       h_freq: null
+#       method: iir
+#       verbose: False
+#       iir_params:
+#         order: 4
+#         ftype: butter
+#         output: sos
+        
+# - apply_func:
+#     select: null
+#     func:
+#       _partial_: True
+#       _target_: deepbci.data_utils.mutators.epoch
+#       tmin: -0.2
+#       tmax: 0.995
+#       preload: true
+#       picks: [eeg]
+#       verbose: WARNING
+#       baseline: null
+      
+# - compress:
+    # compress_level: subject
+
