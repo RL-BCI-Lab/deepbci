@@ -3,7 +3,6 @@ exps:
   # Training: OAOut
   - {{ parent_dir }}/s{{ subject }}/oaout:
       data-cfg:
-
         groups:
           _target_: deepbci.data_utils.Groups
 
@@ -71,7 +70,6 @@ exps:
   # Training: OAObs
   - {{ parent_dir }}/s{{ subject }}/oaobs:
       data-cfg:
-
         groups:
           _target_: deepbci.data_utils.Groups
 
@@ -139,7 +137,6 @@ exps:
   # Training: BGSObs
   - {{ parent_dir }}/s{{ subject }}/bgsobs:
       data-cfg:
-
         groups:
           _target_: deepbci.data_utils.Groups
 
@@ -215,7 +212,6 @@ exps:
   # Training: BGSInt
   - {{ parent_dir }}/s{{ subject }}/bgsint:
       data-cfg:
-
         groups:
           _target_: deepbci.data_utils.Groups
 
@@ -262,17 +258,19 @@ exps:
         - apply_func:
             select: 
               - [train, test]
-              - [BGSObs]
+              - [BGSInt]
             func:
-            - remap_labels:
-                label_map: {2: 0}
+              _partial_: True
+              _target_: deepbci.data_utils.mutators.remap_labels
+              label_map: {2: 0}
         - apply_func:
             select: 
               - [test]
-              - [BGSInt]
+              - [BGSObs]
             func:
-            - remap_labels:
-                label_map: {2: 0}
+              _partial_: True
+              _target_: deepbci.data_utils.mutators.remap_labels
+              label_map: {2: 0}
         # - {{ mutate.upsample_train }}
         - {{ mutate.compress_datasets }}
         - {{ mutate.rescale }}

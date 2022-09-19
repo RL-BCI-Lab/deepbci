@@ -108,6 +108,7 @@ ENV/
 *.gif
 *.Trash-*/
 *.out
+data-v2.tar.zst
 
 # Folders
 averages/
@@ -121,10 +122,12 @@ omni_data2/
 bci/data_preprocessing/data/oa/
 bci/data_preprocessing/data/obs/
 cache/
-scripts/classification/exps/
+scripts/classification/exps/*
 scripts/cka-test/model_activations
 scripts/dl
-scripts/classification/analysis
+scripts/agents
+scripts/cka-test
+scripts/classification/analysis/*
 quick-start-data/ 
 
 # files
@@ -134,3 +137,4 @@ run_config.yml
 #Word
 ~$ewriting.docx
 ~WRL0005.tmp
+

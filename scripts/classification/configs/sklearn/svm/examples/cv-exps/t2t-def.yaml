@@ -1,7 +1,8 @@
-parent_dir: logocv-v4-svm-async
+parent_dir: logocv-svm
 
 subjects: [1,2,3,4,5,6,7,8,9]
 
+# Data Config
 groups:
   OA:
     trials: eval(list(range(1, 10+1)))
@@ -47,68 +48,66 @@ groups:
     #   generate_sync_epochs:
     #     use_events: [1, 2]
 
+# Mutate Config
 mutate:
   filter:
     apply_func:
       select: null
       func:
-      - filter:
-          l_freq: 0.1
-          h_freq: 30
-          method: iir
-          verbose: false
-          iir_params:
-            order: 4
-            ftype: butter
-            output: sos
+        _partial_: True
+        _target_: deepbci.data_utils.mutators.filter
+        l_freq: 0.1
+        h_freq: 30
+        method: iir
+        verbose: False
+        iir_params:
+          order: 4
+          ftype: butter
+          output: sos
 
   epoch:
     apply_func:
       select: null
       func:
-      - epochs:
-          tmin: 0.0
-          tmax: 0.695
-          preload: true
-          picks: [eeg]
-          verbose: WARNING
-          baseline: null
+        _partial_: True
+        _target_: deepbci.data_utils.mutators.epoch
+        tmin: 0
+        tmax: 0.695
+        preload: true
+        picks: [eeg]
+        verbose: WARNING
+        baseline: null
 
   resample:
     apply_method:
       select: null
       method:
-        resample:
+        name: resample
+        kwargs: 
           sfreq: 128
 
   to_numpy:
-    apply_func: 
+    apply_func:
       select: null
       func:
-      - to_numpy:
-          units: uV
+        _partial_: True
+        _target_: deepbci.data_utils.mutators.to_numpy
+        units: uV
 
   upsample_train:
     apply_func:
-      select: 
-      - [train]
+      select: [train]
       func:
-      - balance:
-          btype: upsample
-          verbose: True
+        _partial_: True
+        _target_: deepbci.data_utils.mutators.balance
+        btype: upsample
 
-  expand_dims:
-    apply_func:
-      select: null
-      func: 
-      - expand_dims:
-          axis: 1
-
-  to_onehot:
-    apply_func:
-      select: null
-      func:
-      - to_onehot:
+  compress_dims:
+    select: null
+    func: 
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.compress_dims
+      start: 1
 
   compress_trials:
    compress: 
@@ -120,39 +119,36 @@ mutate:
       select: [train]
       compress_level: group
 
-  compress_dims:
-    apply_func:
-      select: null
-      func:
-      - compress_dims: 
-          start: 1
-
   rescale:
     apply_func:
       select: [train]
       func:
-      - rescale:
-          scaler:
-            _target_: deepbci.data_utils.scalers.STD # deepbci.data_utils.scalers.MinMax
-            axis: [0]
-          save: true 
-          filepath: scalers.pickle
+        _partial_: True
+        _target_: deepbci.data_utils.mutators.rescale
+        scaler:
+          _target_: deepbci.data_utils.scalers.MinMax
+          axis: [0]
+        save: True 
+        filepath: scalers.pickle
 
   apply_rescale:
     apply_func:
       select: [test]
       func:
-      - rescale:
-          load: true 
-          filepath: scalers.pickle
+        _partial_: True
+        _target_: deepbci.data_utils.mutators.rescale
+        load: true 
+        filepath: scalers.pickle
           
   log_class_info:
     apply_func:
       select:
       - [train, test]
       func:
-      - log_class_info: {}
+        _partial_: True
+        _target_: deepbci.data_utils.mutators.log_class_info
 
+# Model Config
 model_wrapper:
   _target_: deepbci.models.wrappers.Sklearn
   model: 
@@ -178,44 +174,27 @@ model_args:
   evaluate_metrics:
     csv:
       bACC:
-        _target_: functools.partial
-        _args_: ['${get:sklearn.metrics.balanced_accuracy_score}']
+        _partial_: True
+        _target_: sklearn.metrics.balanced_accuracy_score
       ACC:
-        _target_: functools.partial
-        _args_: ['${get:sklearn.metrics.accuracy_score}']
+        _partial_: True
+        _target_: sklearn.metrics.accuracy_score
       tpr:
-        _target_: functools.partial
-        _args_: ['${get:sklearn.metrics.recall_score}']
+        _partial_: True
+        _target_: sklearn.metrics.recall_score
       ppv:
-        _target_: functools.partial
-        _args_: ['${get:sklearn.metrics.precision_score}']
+        _partial_: True
+        _target_: sklearn.metrics.precision_score
       tnr:
-        _target_: functools.partial
-        _args_: ['${get:sklearn.metrics.recall_score}']
+        _partial_: True
+        _target_: sklearn.metrics.recall_score
         pos_label: 0
       F1: 
-        _target_: functools.partial
-        _args_: ['${get:sklearn.metrics.f1_score}']
-      # nll:
-      #   _target_: functools.partial
-      #   _args_: ['${get:sklearn.metrics.log_loss}']
-      # PR:
-      #   _target_: functools.partial
-      #   _args_: ['${get:deepbci.models.metrics.prc_auc_score}']
-      #   column: 1
-      #   pos_label: 1
-      # ROC:
-      #   _target_: functools.partial
-      #   _args_: ['${get:deepbci.models.metrics.roc_auc_score}']
-      #   column: 1
-      #   pos_label: 1
+        _partial_: True
+        _target_: sklearn.metrics.f1_score
       confusion_matrix:
-        _target_: functools.partial
-        _args_: ['${get:sklearn.metrics.confusion_matrix}']
+        _partial_: True
+        _target_: sklearn.metrics.confusion_matrix
     log:
       - confusion_matrix
     argmax_axis: 1
-    # exclude_argmax:
-    #   - nll
-    #   - PR
-    #   - ROC

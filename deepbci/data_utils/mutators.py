@@ -193,6 +193,7 @@ def rescale(data, key, *, scaler=None, save=False, load=False, filepath=None):
             filepath (str): Path to file used for saving or loading scaler
     
     """
+
     if load:
         if filepath is None:
             raise ValueError("Filepath must be set when loading a scaler class.")

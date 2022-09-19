@@ -201,7 +201,7 @@ def save_metric_summary(metrics,
         se_metrics_summary = ['-'.join([str(n) for n in se_name])]
         se_metric_columns = []
         
-        for (metric_name, metric_data) in se_data.iteritems():               
+        for (metric_name, metric_data) in se_data.items():               
             if metric_name in metrics_summary_overrides:
                 summary_metrics = metrics_summary_overrides[metric_name]
             else:

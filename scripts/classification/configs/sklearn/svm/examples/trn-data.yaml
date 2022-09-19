@@ -48,7 +48,6 @@ groups:
             map_type: down
 
 mutate:
-
 - apply_func:
     select: null
     func:
@@ -68,8 +67,8 @@ mutate:
     func:
       _partial_: True
       _target_: deepbci.data_utils.mutators.epoch
-      tmin: 0.1
-      tmax: 0.495
+      tmin: 0
+      tmax: 0.695
       preload: true
       picks: [eeg]
       verbose: WARNING
@@ -90,13 +89,20 @@ mutate:
     compress_level: group
 
 - apply_func:
+    select: null
+    func: 
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.compress_dims
+      start: 1
+
+- apply_func:
     select: [train]
     func:
       _partial_: True
       _target_: deepbci.data_utils.mutators.rescale
       scaler:
-        _target_: deepbci.data_utils.scalers.STD
-        axis: [0,2]
+        _target_: deepbci.data_utils.scalers.MinMax
+        axis: [0]
       save: true 
       filepath: scalers.pickle
 - apply_func:
@@ -107,10 +113,5 @@ mutate:
       load: true 
       filepath: scalers.pickle
 
-- apply_func:
-    select: null
-    func: 
-      _partial_: True
-      _target_: deepbci.data_utils.mutators.compress_dims
-      start: 1
+
         

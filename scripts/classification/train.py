@@ -91,9 +91,12 @@ def build_exp_path(exp_dir, make_dir=True):
         This directory will always be built within the EXPS_DIR specified at
         the top of this script.
         
-        model_args:
+        Args:
             exp_dir (str): Name of the directory where models, metrics, and logs will
                 be saved.
+                
+            make_dir (bool): If true, will make experiment directory if it does
+                not already exist.
         
     """
     
@@ -111,7 +114,7 @@ def mutate_groups(grps, mutate=None, seed=None):
     """ Apply mutators specified by mutator config to preprocess data in Groups object.
         
         Args:
-            gros (Groups): deepbci.data_utils.Groups object
+            grps (deepbci.data_utils.Groups): Groups object to be mutated
             
             mutate (dict): List of dicts that specify how Groups.data_map should be 
                 mutated.
@@ -131,8 +134,8 @@ def mutate_groups(grps, mutate=None, seed=None):
 def get_train_valid_group(grps):
     """ Extracts train and validation groups from deepbci.data_utils.data.Groups
 
-        model_args:
-            grps (deepbci.Groups): Groups object that contains train and validation
+        Args:
+            grps (deepbci.data_utils.Groups): Groups object that contains train and validation
                 data splits.
         Note:
             Be sure when creating group names that a group is named 'train'.
@@ -158,8 +161,10 @@ def cache_save(data, data_cfg, cache_dir):
         data_cfg. The default file location is ./cache/data-cache. However, you can pass
         a argument to --cache which will specify the cache filename.
         
-        model_args:
-            data (list, tuple): Contains objects to be cached.
+        Args:
+            data (list, tuple): Contains data objects to be cached.
+            
+            data_cfg (dict): Data config to be cached.
             
             cache_dir (str): Name of dir to cache data to within 
                 scripts/classification/cache/.
@@ -209,8 +214,6 @@ def train(
     # Initialize logger
     og_logger = logger.Logger.CURRENT
     logger.configure('logs',  ['log'], log_prefix='train-')
-    # trn = trn_df.ravel()[0]
-    # vld = vld_df.ravel()[0] if vld_df is not None else None
     metrics = {}
 
     # Reset all seeds for training
@@ -277,7 +280,6 @@ def train(
         vld_metrics = evaluate_metrics(vld.labels, vld_preds, **model_args['evaluate_metrics'])
         # Save metrics paired with group name valid
         metrics[vld_tags] = vld_metrics
-        # metrics[vld_df.index.unique()[0]] = vld_metrics
         logger.info("SUCCESS: Predictions and metrics computed")
 
     ####################################################################################
@@ -290,6 +292,7 @@ def train(
     # save_metrics(metrics=metrics, multi_idx_names=trn_df.index.names)
     logger.info("SUCCESS: Metric saved")
     
+    # TODO: Fix saving predictions which is currently broken
     # Save train predictions 
     # save_preds(
     #     file_name=ds.TRN_PRED_FILE,
@@ -304,6 +307,7 @@ def train(
     #         preds=vld_preds,
     #         labels=vld.labels
     #     )
+    
     if model_args['save']:
         logger.info("Saving model...")
         model_wrapper.save(**model_args['save'])
@@ -333,13 +337,9 @@ def instantiate_data_config(data_cfg, seed=None):
     built_data_cfg = instantiate(data_cfg, _convert_='all')
     
     return built_data_cfg
-
-def get_matching_keys(keys, target_keys):
-    keys = set(keys)
-    target_keys = set(target_keys)
-    return keys.intersection(target_keys)
     
 def instantiate_model_config(args_class, model_args, prebuilt=None):
+    """ Instantiates the model config using Hyrda's instantiate function """
     prebuilt = {} if prebuilt is None else prebuilt
     if is_dataclass(prebuilt):
         prebuilt = prebuilt.__dict__
@@ -365,7 +365,14 @@ def instantiate_model_config(args_class, model_args, prebuilt=None):
     
     return built_model_args.__dict__
 
+def get_matching_keys(keys, target_keys):
+    keys = set(keys)
+    target_keys = set(target_keys)
+    return keys.intersection(target_keys)
+
 def set_default_resolvers():
+    """ Sets default resolvers for hydra instantiation. """
+    
     OmegaConf.register_new_resolver('get', get_method, replace=True)
     OmegaConf.register_new_resolver('cwd', to_absolute_path, replace=True)
     OmegaConf.register_new_resolver('join', join, replace=True)
@@ -377,6 +384,7 @@ def set_default_model_resolvers(
     trn_exp_path=None, 
     tst_exp_path=None
 ):
+    """ Sets default resolvers for hydra when instantiating the model config. """
     
     def get_data(split):
         if split == 'train' and trn is not None:
@@ -423,13 +431,40 @@ def preinstantiate_model_wrapper(model_module: str, **kwargs):
     if hasattr(model_wrapper, 'preinstantiate'):
         model_wrapper.preinstantiate(**kwargs)
 
-def evaluate_metrics(y_true, y_pred, csv=None, log=None, exclude_argmax=None, argmax_axis=None):
+def evaluate_metrics(
+    y_true, y_pred, 
+    *, 
+    csv=None, 
+    log=None, 
+    exclude_argmax=None,
+    argmax_axis=None
+):
     """ Adds extra metrics that were not computed during training 
     
-        model_args:
-            preds (nd.array): Predictions from model.
+        Args:
+            y_true (np.array): True labels for data.
             
-            labels (np.array): True labels for data.
+            y_pred (nd.array): Predictions from model.
+            
+            csv (dict): Dictionary of metrics to be computed and saved to
+                a csv file. A key in the dictionary acts as the label for the 
+                metric and the value holds callable or function used to compute 
+                the metric. The function should take as input y_true and 
+                y_pred in said order.
+            
+                    Example: csv = {'ACC': sklearn.metrics.accuracy_score}
+                    
+            log (List):  List of metric labels in `csv` that will be logged
+                to file instead of save to csv. This is useful when the metric 
+                returns a matrix (e.g., confusion matrix).
+            
+            argmax_axis (int): Determines the argmax axis to use for y_true
+                and y_preds.
+                
+            exclude_argmax (list): List of metric labels in `csv` that do not
+                require the use of argmax when computing the metrics (e.g., 
+                nll requires a one-hot encoding to compute the loss).
+
     """
     metrics = {}
     csv = {} if csv is None else csv
@@ -461,13 +496,15 @@ def evaluate_metrics(y_true, y_pred, csv=None, log=None, exclude_argmax=None, ar
 def save_configs(data_cfg=None, model_args=None, prefix=''):
     """ Save configs to be reused for replication.
     
-        model_args:
+        Args:
             data_cfg (dict): Data config file for constructing training and validation
                 data. Should be unedited so that using this saved data config can be
                 reused.
                 
             model_args (dict): Model config file for building model. Should be unedited 
                 so that using this saved model config can be reused.
+                
+            prefix (str): Prefix to be used when saving configs.
     """
     if data_cfg is not None or model_args is not None:
         if not os.path.exists(ds.CFG_DIR):
@@ -486,9 +523,13 @@ def save_configs(data_cfg=None, model_args=None, prefix=''):
 def save_metrics(metrics, multi_idx_names, metrics_file=None):
     """ Save metrics and summaries for every sub-experiment.
     
-        model_args:       
+        Args:       
             metrics (dict): Metrics to be saved where the key corresponds to the metric
                 name and the value corresponds to the metric value. 
+                
+            multi_idx_names (list): Names for the multi-indexing.
+            
+            metrics_file (str): Name of the metrics file.
     """  
     metrics_file = ds.METRICS_FILE if metrics_file is None else metrics_file
     
@@ -564,8 +605,11 @@ class _TrainDefaultArgs():
             dataset (dict): Kwargs for the model wrapper's dataset class.
             
             preinstantiate (dict): Kwargs for the model wrapper's preinstantiate() method.
-
-
+            
+            evaluate_metrics (dict): dictionary the correspons to 
+            
+            save (dict): kwargs corresponding to the model_wrapper's save method. If not
+                None, then model will be saved at the end of training.
     """
     predict: dict = field(default_factory=dict)
     fit: dict = field(default_factory=dict)

@@ -23,7 +23,6 @@ groups:
         map_type: down
 
 mutate:
-
   filter:
     apply_func:
       select: null

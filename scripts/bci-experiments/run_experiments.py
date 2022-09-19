@@ -6,15 +6,15 @@ import numpy as np
 from deepbci.utils import utils
 
 # Frequently change variables
-subject_number = 11 # Change per session
+subject_number = 0 # Change per session
 trial_range = (1, 5) # Change per session
 
 # Order in which tasks will be ran
 task_order = [
-    # ('binary_goal_search', 'observation'),
+    ('binary_goal_search', 'observation'),
     ('binary_goal_search', 'interaction'),
-    # ('obstacle_avoidance', 'observation'),
-    # ('obstacle_avoidance', 'outcome'),
+    ('obstacle_avoidance', 'observation'),
+    ('obstacle_avoidance', 'outcome'),
 ]
 
 # Trial numbers

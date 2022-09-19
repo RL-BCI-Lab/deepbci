@@ -11,12 +11,12 @@
 #
 #    ===== Main =====
 
-cd /users/bpoole16/deep-bci/scripts/classification
+cd /users/bpoole16/deepbci/scripts/classification
 python run_exps.py \
  --cpus=8 \
  --cpus_per_task=1 \
  --gpus=8 \
  --gpus_per_task=1 \
- --exp-cfg configs/tensorflow/examples/cv-exps/t2t-exp.yaml \
- --def-cfg configs/tensorflow/examples/cv-exps/t2t-def.yaml \
+ --exp-cfg exps/v2-ErrP-variations-March-3-2022/logocv-v2-eegnet-async-upsample/configs/exp.yaml \
+ --def-cfg exps/v2-ErrP-variations-March-3-2022/logocv-v2-eegnet-async-upsample/configs/exp-def.yaml \
  --method-type logocv
