@@ -111,24 +111,24 @@ ENV/
 data-v2.tar.zst
 
 # Folders
-averages/
 tmp/
-errp_data_1/
 states/
 graphs/
 log/
-omni_data/
-omni_data2/
-bci/data_preprocessing/data/oa/
-bci/data_preprocessing/data/obs/
-cache/
+
+scripts/*
+!scripts/classification
 scripts/classification/exps/*
-scripts/cka-test/model_activations
-scripts/dl
-scripts/agents
-scripts/cka-test
 scripts/classification/analysis/*
-quick-start-data/ 
+scripts/classification/cache
+scripts/classification/configs/*
+!scripts/classification/configs/tensorflow
+!scripts/classification/configs/sklearn
+!scripts/data-exploration
+scripts/data-exploration/averages
+scripts/data-exploration/quick-start-data
+!scripts/build-data
+!scripts/bci-experiments
 
 # files
 Thumbs.db
