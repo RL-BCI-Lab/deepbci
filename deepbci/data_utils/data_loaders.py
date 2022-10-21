@@ -72,7 +72,7 @@ class _DBCIBaseLoader(_BaseEEGLoader):
     _interval_file_template = 'time-{}'
     _trial_template = 'trial-{}'
     _state_info_file = 'state-info.csv'
-    _states_file = join('states', 'human-state-images.npy')
+    _states_file = join('states', 'state-images.npy')
     _info_columns = ['timestamps', 'labels']
     
     def __init__(self, **kwargs):
@@ -111,7 +111,7 @@ class _DBCIBaseLoader(_BaseEEGLoader):
                     in data_utils.epoch. The value represents the kwargs for epoching_type.
                     If you wish to pass no kwargs simply pass an empty dict or None. 
                     Example, {load_async_epochs: {}} or {load_async_epochs: None}.
-                    Choices for funcions are as follows: load_async_epochs, 
+                    Choices for functions are as follows: load_async_epochs, 
                     generate_async_epochs, and generate_sync_epochs.
                     
                 epoch_on_load (dict | None): Epoch data as raw data is loaded to save memory.
@@ -185,7 +185,7 @@ class _DBCIBaseLoader(_BaseEEGLoader):
             s_trials.sort()
 
             for tl in s_trials:
-                # Init trail meta data to empty dict
+                # Init trail metadata to empty dict
                 metadata = {}
                 
                 # Build trial directory. Each file is located within a trial directory.

@@ -36,10 +36,13 @@ def init_paths(subject_number, trial_number, save_path):
     # correct or erroneous.
     ern_timing_file = "time-ern.csv"
     crn_timing_file = "time-crn.csv"
+    rest_timing_file = "time-rest.csv"
     ern_timing_path = join(subject_trial_dir, ern_timing_file)
     crn_timing_path = join(subject_trial_dir, crn_timing_file)
+    rest_timing_path = join(subject_trial_dir, rest_timing_file)
     paths['ern_timing_file'] = ern_timing_path
     paths['crn_timing_file'] = crn_timing_path
+    paths['rest_timing_file'] = rest_timing_path
 
     # Create and save path for all sync information needed for EEG
     game_info_file =  "game-info.csv"
@@ -51,7 +54,7 @@ def init_paths(subject_number, trial_number, save_path):
     if not os.path.exists(state_img_folder):
         os.makedirs(state_img_folder)
 
-    state_imgs_path = join(state_img_folder, 'human-state-images.npy')
+    state_imgs_path = join(state_img_folder, 'state-images.npy')
     paths['state_imgs_file'] = state_imgs_path
         
     return paths
@@ -59,7 +62,7 @@ def init_paths(subject_number, trial_number, save_path):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-s", "--subject-number", default='00',
+        "-s", "--subject-number", default='0',
         help="Pass subject number with leading zero for single digits (Ex: 01 or 11)")
     parser.add_argument("-t", "--trial-number", default='0', help="Trial number")
     args = parser.parse_args()

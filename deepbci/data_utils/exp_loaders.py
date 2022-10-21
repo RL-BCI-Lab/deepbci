@@ -26,7 +26,7 @@ class OpenBCILoader(EEGLoader):
             raise ValueError(f"`version` must be set equal to one of the following {self._valid_versions}, "
                             f"received {self.version}")
 
-    def load(self, path, ):
+    def load(self, path):
         if self.version == 4:
             eeg = self._load_openbci_v4(path)
         elif self.version == 5:

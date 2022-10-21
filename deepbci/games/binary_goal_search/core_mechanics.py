@@ -1,17 +1,3 @@
-import sys
-import time
-import datetime
-import random
-import os
-from pdb import set_trace
-from math import floor
-
-import pygame
-import numpy as np
-import cv2 # pip install opencv-python
-
-import deepbci.utils.logger as logger
-from deepbci.games.pygame_objects import GameScreen, Block
 
 """
 About: This game is used to detect the ErrP signal related to errors.
@@ -22,16 +8,30 @@ with a chance to move in the wrong direction.
 Mechanics: At time step 0 the agent will wait the minimum delay time before moving
 making a correct or incorrect step (towards or away from the goal). All steps
 are offset by a random whole interval between min_delay and max_delay. The correct
-or incorrect step is probabilistic and determined by the erro_rate.
+or incorrect step is probabilistic and determined by the error_rate.
 When the agent reaches the goal there will be another random whole interval
-delay before the game resets and begins again. Once a max number of trials
-has been reached the game will end.
+delay (reset state) before the game resets and begins again. Once a the time limit has
+been reached and the agent reaches the goal, the game will end.
 
-Mapping: Target 0 (timestep 0) maps to the first 1s of EEG drop_data,
-target 1 maps to next 1s of EEG data and so on.
-The goal is to capture the signal AFTER the agent makes a move.
+TODO: This game needs to be rewritten to match Gym format so that it can be easily used
+for reinforcement learning if needed. This game was originally designed to simply elicit
+ErrPs without much consideration for being used as an RL environment.
 """
 
+import sys
+import time
+import datetime
+import random
+import os
+from pdb import set_trace
+from math import floor
+
+import pygame
+import numpy as np
+import cv2
+
+import deepbci.utils.logger as logger
+from deepbci.games.pygame_objects import GameScreen, Block
 
 class Agent(Block):
     """Agent block that requires moving abilities."""
@@ -58,11 +58,11 @@ class CoreMechanics(GameScreen):
                  goal_height=50, 
                  goal_distance=150, 
                  no_action=0, 
-                 left_action=0, 
+                 left_action=2, 
                  right_action=1, 
-                 base_reward=0, 
-                 incorrect_reward=-1, 
-                 correct_reward=1, 
+                 rest_label=0, 
+                 incorrect_label=1, 
+                 correct_label=2, 
                  step_size=50, 
                  error_rate=.2, 
                  delay=[1.3, 1.3], 
@@ -85,28 +85,25 @@ class CoreMechanics(GameScreen):
         self.no_action = no_action
         self.left_action = left_action
         self.right_action = right_action
-        self.base_reward = base_reward
-        self.correct_reward = correct_reward
-        self.incorrect_reward = incorrect_reward
+        self.rest_label = rest_label
+        self.correct_label = correct_label
+        self.incorrect_label = incorrect_label
         self.state_width = state_width
         self.state_height = state_height
         self.scale = scale
         
         self.__action = no_action
-        self.__reward = base_reward
+        self.__label = rest_label
         self.action_timestamp = 0
         
         super().__init__(self.screen_height, self.screen_width)
-        # self.start = self.screen_width // 2
+
     def get_time(self):
         """ Gets current time stamp.
             
             Add any time stamp modifications here, which will cause the rest of
             the base game use them.
         """
-        #ts = datetime.datetime.now().time()
-        #print(ts, ts.hour, ts.minute , ts.second ,ts.microsecond/1000000)
-        #return float(ts.hour*3600 + ts.minute*60 + ts.second +ts.microsecond/1000000)
         return time.monotonic()
         
     def draw(self):
@@ -185,11 +182,11 @@ class CoreMechanics(GameScreen):
             self.agent.move(self.step_size)
             
         if action == correct_action:
-            reward = self.correct_reward
+            label = self.correct_label
         elif action == incorrect_action:
-            reward = self.incorrect_reward
+            label = self.incorrect_label
         
-        return reward, action
+        return label, action
 
     def step(self, action, dt=0):
         """ Main loop of OA game.
@@ -210,7 +207,7 @@ class CoreMechanics(GameScreen):
                 Return true when the agent has reached the goal.
         """            
         # Move agent based on passed or validated action
-        self.reward, self.action = self.move_agent(action)
+        self.label, self.action = self.move_agent(action)
 
         # Draw screen
         self.draw()
@@ -242,12 +239,12 @@ class CoreMechanics(GameScreen):
         return np.transpose(state, (1, 0, 2))
 
     @property
-    def reward(self):
-        return self.__reward
+    def label(self):
+        return self.__label
     
-    @reward.setter
-    def reward(self, value):
-        self.__reward = value
+    @label.setter
+    def label(self, value):
+        self.__label = value
         
     @property
     def action(self):

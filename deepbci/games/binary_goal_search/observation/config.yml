@@ -13,11 +13,8 @@ agent_height: 50
 goal_width: 50
 goal_height: 50
 no_action: 0
-left_action: 0
+left_action: 2
 right_action: 1
-base_reward: 0
-incorrect_reward: 1
-correct_reward: 2
 error_rate: .2 # chance to make incorrect step
 delay: [1.2, 1.2] # delay range between actions [min, max] (seconds)
 jitter: [.01, .1] # random jitter range added to delay [min, max] (seconds)

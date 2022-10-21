@@ -9,9 +9,11 @@ defaults: &defaults
     build_timestamps: True
     fill: True
     fill_limit: 20
+    before_padding: 20
+    after_padding: 2
   electrodes: ['F4', 'F3', 'Fz', 'Cz']
 
-subjects: &subjects
+subjects: &default_subjects
   1: 
     trials: eval(list(range(1, 10+1)))
   2: 
@@ -30,22 +32,9 @@ subjects: &subjects
     trials: eval(list(range(1, 10+1)))
   9: 
     trials: eval(list(range(1, 10+1)))
-  # 10: 
-  #   trials: eval(list(range(1, 5+1)))
-  # 11: 
-  #   trials: eval(list(range(1, 5+1)))
 
-build_kwargs:
-  sync_data_kwargs:
-      padding: 2
-  build_labels_kwargs:
-    nearest_kwargs:
-      map_type: down
-  # butter_filter_kwargs:
-  #   ftype: butter_highpass_filter
-  #   order: 2 
-  #   lowcut: .1
-      
+file_name: eeg-before-padding
+
 datasets:
   binary_goal_search/observation:
     <<: *defaults
@@ -53,7 +42,7 @@ datasets:
       crn: 2
       ern: 1
     subjects:
-      <<: *subjects
+      <<: *default_subjects
 
   binary_goal_search/interaction:
     <<: *defaults
@@ -61,18 +50,31 @@ datasets:
       crn: 2
       ern: 1
     subjects:
-      <<: *subjects
+      <<: *default_subjects
+      # 10: 
+      #   trials: eval(list(range(1, 5+1)))
+      # 11: 
+      #   trials: eval(list(range(1, 5+1)))
 
   obstacle_avoidance/observation:
     <<: *defaults
     signal_types: 
       ern: 1
     subjects:
-      <<: *subjects
+      <<: *default_subjects
 
   obstacle_avoidance/outcome:
     <<: *defaults
     signal_types: 
       ern: 1
     subjects:
-      <<: *subjects
+      <<: *default_subjects
+
+build_kwargs:
+  build_labels_kwargs:
+    nearest_kwargs:
+      map_type: down
+  # butter_filter_kwargs:
+  #   ftype: butter_highpass_filter
+  #   order: 2 
+  #   lowcut: .1

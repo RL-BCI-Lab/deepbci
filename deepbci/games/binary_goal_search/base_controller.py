@@ -49,6 +49,7 @@ class BaseController(ABC, BGSCoreMechanics):
         self.start_time = self.get_time()
         self.log("EPOCH: ",  epoch)
         self._update_caption()
+        # The first initialization is an unlabeled resting state essentially
         self.initialize_game()
  
         while True:
@@ -56,7 +57,7 @@ class BaseController(ABC, BGSCoreMechanics):
                 if self.terminal:
                     self.capture_state(state=self.state, 
                                        action=self.no_action, 
-                                       reward=self.base_reward, 
+                                       label=self.rest_label, 
                                        terminal=self.terminal, 
                                        timestamp=self.get_time()-self.start_time)
                
@@ -73,7 +74,7 @@ class BaseController(ABC, BGSCoreMechanics):
                 self.step(action=action)
                 self.capture_state(state=s, 
                                    action=self.action, 
-                                   reward=self.reward, 
+                                   label=self.label, 
                                    terminal=self.terminal, 
                                    timestamp=self.action_timestamp-self.start_time)
 
@@ -84,13 +85,13 @@ class BaseController(ABC, BGSCoreMechanics):
                     # Captures last step of the task, i.e. terminal state
                     self.capture_state(state=self.state, 
                                        action=self.no_action, 
-                                       reward=self.base_reward, 
+                                       label=self.rest_label, 
                                        terminal=self.terminal, 
                                        timestamp=self.get_time()-self.start_time)
                     self.game_info.append(ms)
                     self.game_info.insert(0, total_duration)
                     record_stats_on_finish = True
-                    self.log(bordered("End ts: {} / {}".format(ts, ms)))
+                    self.log("\n"+bordered("End ts: {} / {}".format(ts, ms)))
                 
                 game_over_msg = "Game Over!"
                 render_game_over = self.font.render(game_over_msg, False, (0, 0, 0))
@@ -123,7 +124,7 @@ class BaseController(ABC, BGSCoreMechanics):
             pygame.time.delay(25)
 
         ts, ms = get_timestamp()
-        self.log(bordered("Before start ts: {} / {}".format(ts, ms)))
+        self.log("\n"+bordered("Before start ts: {} / {}".format(ts, ms)))
         self.game_info.append(ms)
 
     def countdown_to_start(self):
@@ -143,7 +144,7 @@ class BaseController(ABC, BGSCoreMechanics):
             pygame.time.delay(25)
 
         ts, ms = get_timestamp()
-        self.log(bordered("Start ts: {} / {}".format(ts, ms)))
+        self.log("\n"+bordered("Start ts: {} / {}".format(ts, ms)))
         self.game_info.append(ms)
         
     def draw_text(self, text, position, update_all=False):
@@ -181,20 +182,20 @@ class BaseController(ABC, BGSCoreMechanics):
     def get_action(self):
         pass
     
-    def capture_state(self, state, action, reward, terminal, timestamp):
+    def capture_state(self, state, action, label, terminal, timestamp):
         """ Captures state information, i.e. actions, images error or correct action."""
         self.states.append(state)
-        self.state_info.append([reward, action, terminal])
+        self.state_info.append([label, action, terminal])
         self.state_timestamps.append(timestamp)
         
-        msg = "\tCapturing - Time:{:.5f} R: {} A: {} T: {}"
-        self.log(msg.format(timestamp, reward, action, terminal))
+        msg = "\tCapturing - Time:{:.5f} L: {} A: {} T: {}"
+        self.log(msg.format(timestamp, label, action, terminal))
         
     def print_game_info(self, epoch, duration):
-        rewards = np.vstack(self.state_info)[:, 0]
-        err = len(rewards[rewards == self.incorrect_reward])
-        cor = len(rewards[rewards == self.correct_reward])
-        reset = len(rewards[rewards == self.base_reward])
+        labels = np.vstack(self.state_info)[:, 0]
+        err = len(labels[labels == self.incorrect_label])
+        cor = len(labels[labels == self.correct_label])
+        reset = len(labels[labels == self.rest_label])
         
         # Check information was recorded correctly
         if epoch != reset:
@@ -205,10 +206,10 @@ class BaseController(ABC, BGSCoreMechanics):
             self.log(error_msg.format(len(self.states), (err+cor+reset)))
         
         # Log final information
-        msg = "Steps:{} Err:{} Cor:{} Rest:{} Imgs:{} Time:{:.5f} E-R:{}"
+        msg = "Steps:{} Err:{} Cor:{} Reset:{} Imgs:{} Time:{:.5f} E-R:{}"
         state_info = msg.format((err + cor), err, cor, reset, 
                                len(self.states), duration, self.error_rate)
-        self.log(bordered(text=state_info))
+        self.log("\n"+bordered(text=state_info))
 
     @timeme
     def write_state_info(self):
@@ -240,17 +241,23 @@ class BaseController(ABC, BGSCoreMechanics):
                             index=False, 
                             float_format='%10f')
 
-        ern_ts = state_ts_df[state_info[:, 0] == self.incorrect_reward] 
+        ern_ts = state_ts_df[state_info[:, 0] == self.incorrect_label] 
         ern_ts_df = pd.DataFrame(ern_ts)
         ern_ts_df.to_csv(path_or_buf=self.paths["ern_timing_file"], 
                          header=None, 
                          index=False, 
                          float_format='%10f')
         
-        crn_ts = state_ts_df[state_info[:, 0] == self.correct_reward]
+        crn_ts = state_ts_df[state_info[:, 0] == self.correct_label]
         crn_ts_df = pd.DataFrame(crn_ts)
-
         crn_ts_df.to_csv(path_or_buf=self.paths["crn_timing_file"], 
+                         header=None,
+                         index=False,
+                         float_format='%10f')
+        
+        rest_ts = state_ts_df[state_info[:, 0] == self.rest_label]
+        rest_ts_df = pd.DataFrame(rest_ts)
+        rest_ts_df.to_csv(path_or_buf=self.paths["rest_timing_file"], 
                          header=None,
                          index=False,
                          float_format='%10f')

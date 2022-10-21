@@ -46,7 +46,7 @@ def init_paths(subject_number, trial_number, save_path):
     if not os.path.exists(state_img_folder):
         os.makedirs(state_img_folder)
 
-    state_imgs_path = join(state_img_folder, 'human-state-images.npy')
+    state_imgs_path = join(state_img_folder, 'state-images.npy')
     paths["state_imgs_file"] = state_imgs_path
 
     return paths

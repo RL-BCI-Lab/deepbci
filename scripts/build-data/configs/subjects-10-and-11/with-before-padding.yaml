@@ -1,0 +1,36 @@
+
+defaults: &defaults
+  exp_data_kwargs:
+    eeg_loader:
+      _target_: deepbci.data_utils.exp_loaders.OpenBCILoader
+      board: ganglion
+      fs: 200
+      version: 5
+    build_timestamps: True
+    fill: True
+    fill_limit: 20
+    before_padding: 20
+    after_padding: 2
+  electrodes: ['F4', 'F3', 'Fz', 'Cz']
+
+subjects: &default_subjects
+  10: 
+    trials: eval(list(range(1, 5+1)))
+  11: 
+    trials: eval(list(range(1, 5+1)))
+
+file_name: eeg-before-padding
+
+datasets:
+  binary_goal_search/interaction:
+    <<: *defaults
+    signal_types: 
+      crn: 2
+      ern: 1
+    subjects:
+      <<: *default_subjects
+
+build_kwargs:
+  build_labels_kwargs:
+    nearest_kwargs:
+      map_type: down
