@@ -100,13 +100,6 @@ class Groups(object):
     def __repr__(self):
         """ Return a string representation for a particular DataFrame. """
         return self.data_map.__repr__()
-    
-    # def _repr_html_(self):
-    #     """Return a html representation for a particular DataFrame.
-
-    #         Mainly for IPython notebook.
-    #     """
-    #     return self.data_map._repr_html_()
 
     def _build_data(self, data_groups):
         df_data = []

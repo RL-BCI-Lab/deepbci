@@ -125,8 +125,6 @@ scripts/classification/configs/*
 !scripts/classification/configs/tensorflow
 !scripts/classification/configs/sklearn
 !scripts/data-exploration
-scripts/data-exploration/averages
-scripts/data-exploration/quick-start-data
 !scripts/build-data
 !scripts/bci-experiments
 

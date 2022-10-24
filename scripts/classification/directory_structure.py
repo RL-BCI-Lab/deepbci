@@ -16,6 +16,9 @@ ROOT_DIR = str(Path(__file__).parent.absolute())
 # Root directory for experiment results to be saved to
 EXPS_DIR = 'exps'
 
+# directory for experiment analysis results to be saved to
+ANALYSIS_DIR = 'analysis'
+
 # Default config directory 
 CFG_DIR = 'configs'
 

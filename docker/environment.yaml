@@ -1,9 +1,13 @@
 channels:
   - plotly
-  - conda-forge 
+  - conda-forge
+  - anaconda
 dependencies:
+  - pip
+  - conda-forge::matplotlib=3.5.3
+  - conda-forge::pandas=1.5.2
   - conda-forge::rpy2
-  - anaconda::cmake
+  - conda-forge::cmake
   - plotly::plotly-orca
   - plotly::plotly
   - conda-forge::dash
@@ -12,6 +16,7 @@ dependencies:
   - conda-forge::mne
   - conda-forge::tqdm
   - pip:
+    - tensorflow==2.9.0
     - pygame
-    - hydra-core
-    - zepid
+    - zepid==0.9.0
+    - statannot

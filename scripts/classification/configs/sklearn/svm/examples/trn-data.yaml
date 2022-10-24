@@ -11,20 +11,7 @@ groups:
       load_method: load_to_memory
       load_method_kwargs:
         subjects: [1]
-        trials: eval(list(range(1, 7+1)))
-        data_file: eeg.csv
-        true_fs: false
-        preload_epoch_indexes:
-          generate_async_epochs:
-            step_size: 100
-            map_type: down
-    - _target_: deepbci.data_utils.data_loaders.load_data
-      data_loader: 
-        _target_: deepbci.data_utils.data_loaders.OAOutLoader
-      load_method: load_to_memory
-      load_method_kwargs:
-        subjects: [1]
-        trials: [8]
+        trials: eval(list(range(1, 8+1)))
         data_file: eeg.csv
         true_fs: false
         preload_epoch_indexes:

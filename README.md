@@ -16,25 +16,23 @@ channels:
   - plotly
   - anaconda
 dependencies:
-  - python=3.8 
+  - python=3.9
   - pip
-  - conda-forge::cudatoolkit
   - conda-forge::opencv
   - conda-forge::pyyaml
   - conda-forge::numpy
-  - conda-forge::pandas
-  - conda-forge::matplotlib
+  - conda-forge::pandas=1.5.2
+  - conda-forge::matplotlib=3.5.3
   - conda-forge::seaborn
   - conda-forge::jupyterlab
   - conda-forge::jupyter_contrib_nbextensions
-  - conda-forge::scipy
-  - conda-forge::scikit-learn=1.0.2
-  - libgcc
+  - conda-forge::scipy=1.9.1
+  - conda-forge::scikit-learn=1.1.3 
   - conda-forge::mpi4py
   - conda-forge::dill
   - conda-forge::psutil
   - conda-forge::rpy2
-  - anaconda::cmake
+  - conda-forge::cmake
   - plotly::plotly-orca
   - plotly::plotly
   - conda-forge::dash
@@ -43,11 +41,11 @@ dependencies:
   - conda-forge::mne
   - conda-forge::tqdm
   - pip:
-    - tensorflow-gpu
+    - tensorflow==2.9.0
     - tensorboard
+    - hydra-core
     - pygame
-    - hyrda-core
-    - zepid
+    - zepid==0.9.0
 ```
 # Docker
 
@@ -79,17 +77,7 @@ To make a temporary container with a GPU, simply use the following command.
 dbci-gpu-attach
 ```
 
-If you are on WSL use the WSL command as follows.
-
-```
-# No GPU
-dbci-wsl-attach
-
-# GPU
-dbci-wsl-gpu-attach
-```
-
-If you want a persistent container you can use the following command. This command will build a docker container that will not be destroyed upon shutdown. 
+If you want a persistent container you can use the following command. This command will build a docker container that will not be destroyed when shutdown. 
 
 ```
 # No GPU
@@ -109,12 +97,6 @@ docker attach dbci-tf
 
 # GPU
 docker attach dbci-gpu-tf
-
-# No GPU WSL
-docker attach dbci-wsl-tf
-
-# GPU WSL
-docker attach dbci-wsl-gpu-tf
 ```
 
 # Brief overview
@@ -129,8 +111,7 @@ The `games/` directory contains tasks that are paired with EEG recording for dat
 ### deepbci/models/
 The `models/` directory contains all the code related to machine learning algorithms. If you want to add new algorithms then you can do so by adding them here. Make sure to you implement the necessary base classes (abstract classes) if you wish to do so.
 
-Currently, the code base ONLY supports the Sklearn and TensorFlow libraries.
-
+Currently, the code base ONLY supports the Sklearn and TensorFlow libraries. There are plans to support PyTorch in the future.
 
 ### deepbci/data_utils/
 The `data_utils/` directory contains all the code loading, grouping, and transforming/pre-processing (we call mutating) BCI data. If you wish to add new datasets that can be loaded and utilized by this repository here is where you would do so. Make sure to you implement the necessary base classes (abstract classes) if you wish to do so.

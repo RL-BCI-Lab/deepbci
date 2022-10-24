@@ -12,10 +12,16 @@ After training has finished, a directory in the `deep-bci/experiments/classifica
 
 ### Running Training
 
-To run a training example that does not require a GPU, you can run the following commands (be sure your working directory is `../deep-bci/experiments/classification/` when you run training).
+You can run the following command to try training a basic SVM or neural network(be sure your working directory is `../deep-bci/experiments/classification/` when you run training).
 
 ```
 python run_train.py --model-cfg configs/sklearn/svm/examples/trn.yaml --data-cfg configs/sklearn/svm/examples/trn-data.yaml
+```
+
+OR 
+
+```
+python run_train.py --model-cfg configs/tensorflow/examples/trn.yaml --data-cfg configs/tensorflow/examples/trn-data.yaml
 ```
 
 If you want to use different configs, simply change the above local paths to the `--model-cfg` and `--data-cfg` to new local paths within the `classification/` directory. Optionally, you can run the following command to see what other flags are available for use (e.g., caching data to prevent reloading the data every time).
@@ -34,7 +40,13 @@ Testing works slightly different from training in that it requires training, i.e
 To run a testing example you can run the following command (be sure your working directory is ../deep-bci/experiments/classification/ when you run testing).
 
 ```
-python run_test.py --model-cfg configs/sklearn/svm/examples/tst.yaml --data-cfg configs/sklearn/svm/examples/tst-data.yaml --exp-dir <name of directory generated during training with the exp/ directory>
+python run_test.py --model-cfg configs/sklearn/svm/examples/tst.yaml --data-cfg configs/sklearn/svm/examples/tst-data.yaml --exp-dir <name of directory generated during training within the exp/ directory>
+```
+
+OR 
+
+```
+python run_test.py --model-cfg configs/tensorflow/examples/tst.yaml --data-cfg configs/tensorflow/examples/tst-data.yaml --exp-dir <name of directory generated during training within the exp/ directory>
 ```
 
 If you want to use different configs, simply change the above local paths to the `--model-cfg` and `--data-cfg` to new local paths within the `classification/` directory.
@@ -417,8 +429,8 @@ mutate:
       start: 1
 ```
 
-# Running multi-experiments
-*Implemented but lacking documentation*
-
 # Running cross-validation
 *Implemented but lacking hyper-parameter tuning and documentation*
+
+# Running multi-experiments
+*Implemented but lacking documentation*

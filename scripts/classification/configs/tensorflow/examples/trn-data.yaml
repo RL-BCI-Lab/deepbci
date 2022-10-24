@@ -8,28 +8,13 @@ groups:
       load_method: load_to_memory
       load_method_kwargs:
         subjects: [1]
-        trials: eval(list(range(1, 7+1)))
+        trials: eval(list(range(1, 8+1)))
         data_file: eeg-order2-low0.1.csv
         true_fs: false
         preload_epoch_indexes:
           generate_async_epochs:
             step_size: 100
             map_type: down
-            label_boundary: [-200, 200]
-    - _target_: deepbci.data_utils.data_loaders.load_data
-      data_loader: 
-        _target_: deepbci.data_utils.data_loaders.OAOutLoader
-      load_method: load_to_memory
-      load_method_kwargs:
-        subjects: [1]
-        trials: [8]
-        data_file: eeg-order2-low0.1.csv
-        true_fs: false
-        preload_epoch_indexes:
-          generate_async_epochs:
-            step_size: 100
-            map_type: down
-            label_boundary: [-200, 200]
             
     valid:
     - _target_: deepbci.data_utils.data_loaders.load_data
@@ -39,15 +24,28 @@ groups:
       load_method_kwargs:
         subjects: [1]
         trials: [9]
-        data_file: eeg-order2-low0.1.csv
+        data_file: eeg.csv
         true_fs: false
         preload_epoch_indexes:
           generate_async_epochs:
             step_size: 100
             map_type: down
-            label_boundary: [-200, 200]
         
 mutate:
+- apply_func:
+    select: null
+    func:
+      _partial_: True
+      _target_: deepbci.data_utils.mutators.filter
+      l_freq: 0.1
+      h_freq: 30
+      method: iir
+      verbose: False
+      iir_params:
+        order: 4
+        ftype: butter
+        output: sos
+        
 - apply_func:
     select: null
     func:

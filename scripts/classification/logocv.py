@@ -1,6 +1,7 @@
 import os
 import gc
 import itertools
+from datetime import datetime
 from copy import copy, deepcopy
 from os.path import join
 from dataclasses import dataclass, asdict, field
@@ -178,10 +179,11 @@ class KNestedLOGOCV():
         # 'groups' is excluded from using tunables
         self.cm = CVConfigManager(dict(mutate=data_cfg['mutate'], 
                                        model=model_args))
-        
+
+        if exp_dir is None:
+            now = datetime.now()
+            exp_dir = f"{ds.LOGO_EXP_DIR}-{now.strftime('%Y-%m-%d-%H-%M-%S')}"
         self.exp_dir = exp_dir
-        if self.exp_dir is None:
-            self.exp_dir = ds.LOGO_EXP_DIR
         self.exp_path = train.build_exp_path(exp_dir)
 
         train.set_default_resolvers()
@@ -263,9 +265,11 @@ class KNestedLOGOCV():
                 # self._train_and_test(tst_fold, mutate, model_args)
             else:
                 cfgs = self.cm.copy_configs()
+                # Copy to prevent per fold data mutates from changing original data
                 fold_grps = self.grps.deepcopy()
                 
                 trn_grp = fold_grps.data_map.drop(tst_fold)
+                assert not np.all(trn_grp.index.isin(tst_fold)), "Potential train, test data leakage!"
                 tst_grp = fold_grps.data_map.loc[tst_fold].rename(index=dict(train='test'))
                 fold_grps.data_map = pd.concat([trn_grp, tst_grp]).sort_index()
                 self._log_fold_info(i+1, len(folds), tst_fold, fold_grps)

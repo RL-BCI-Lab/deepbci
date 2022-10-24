@@ -8,7 +8,7 @@ import yaml
 import cv2
 from collections import deque
 
-from deepbci.models import DQN
+from deepbci.models.networks import DQN
 from deepbci.games.obstacle_avoidance.base_controller import BaseController as OABaseController
 from deepbci.utils import utils
 from deepbci.agents.utils import rgb2gray

@@ -168,8 +168,8 @@ class BaseController(ABC, OACoreMechanics):
                     if not self.immune:
                         self.track_life_length()          
                     record_stats_on_finish = True
-                    self.log(bordered("End ts: {} / {}".format(ts, ms)))
-                    self.log(bordered("Seed: {}".format(self.seed)))
+                    self.log("\n"+bordered("End ts: {} / {}".format(ts, ms)))
+                    self.log("\n"+bordered("Seed: {}".format(self.seed)))
                     
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -183,7 +183,7 @@ class BaseController(ABC, OACoreMechanics):
                                            self.min_life,
                                            self.lives_reported)
                         stats_msg = stats_msg.format(task_duration, self.collision_count)
-                        self.log(bordered("{}\n{}".format(lives_msg, stats_msg)))
+                        self.log("\n"+bordered("{}\n{}".format(lives_msg, stats_msg)))
                         pygame.quit()
                         sys.exit()
                 pygame.time.delay(25)
@@ -207,7 +207,7 @@ class BaseController(ABC, OACoreMechanics):
             pygame.time.delay(25)
 
         ts, ms = get_timestamp()
-        self.log(bordered("Before start ts: {} / {}".format(ts, ms)))
+        self.log("\n"+bordered("Before start ts: {} / {}".format(ts, ms)))
         self.game_info.append(ms)
 
     def countdown_to_start(self):
@@ -227,7 +227,7 @@ class BaseController(ABC, OACoreMechanics):
             pygame.time.delay(25)
 
         ts, ms = get_timestamp()
-        self.log(bordered("Start ts: {} / {}".format(ts, ms)))
+        self.log("\n"+bordered("Start ts: {} / {}".format(ts, ms)))
         self.game_info.append(ms)
         
     def pygame_dt(self):

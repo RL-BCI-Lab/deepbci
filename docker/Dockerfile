@@ -1,4 +1,4 @@
-#  docker build -f docke/Dockerfile -t bpoole908/deep-bci:tf --force-rm --no-cache --build-arg VERSION=tf .
+#  docker build -f docker/Dockerfile -t bpoole908/deep-bci:tf --force-rm --no-cache --build-arg VERSION=tf .
 ARG VERSION=tf
 
 FROM bpoole908/mlenv-gpu:${VERSION}
