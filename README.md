@@ -1,3 +1,13 @@
+# CIBCI 2022 Quick Start
+*dedicated CIBCI README coming soon containing detailed instructions for running code.*
+
+This branch is dedicated to reproducing the results reported in our CIBCI 2022 paper.
+
+To quickly download plots and csv files regarding the results from the paper see the below links. 
+
+- [Paper results](https://drive.google.com/file/d/1CFKI6Yyc3X_7l4rASvD1AcJgPUKEnHoI/view?usp=sharing)
+- [Replication results](https://drive.google.com/file/d/1LcDOnzln4BFzB7RvLZMvEA-wG7p9GdFk/view?usp=share_link) (Additional run of the results to help verify replicability)
+
 # About
 *WARNING: This repository is highly volatile and frequent reworks are often conducted!*
 
