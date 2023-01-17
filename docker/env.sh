@@ -2,7 +2,7 @@
 # Resets OPTIND so env can be sourced multiple times
 OPTIND=1 
 user="1000:10"
-version="tf"
+version="cibci"
 path=$PWD
 
 while getopts u:v:p: option

@@ -1,24 +1,24 @@
-# CIBCI 2022 Quick Start
-*dedicated CIBCI README coming soon containing detailed instructions for running code.*
+# CIBCI 2022
 
-This branch is dedicated to reproducing the results reported in our CIBCI 2022 paper.
+This branch is dedicated to reproducing the results reported in our paper [*Error-related Potential Variability: Exploring the Effects on Classification and Transferability*]().
 
-To quickly download plots and csv files regarding the results from the paper see the below links. 
+# Quick Start
+To simply download all the pre-built results including plots, statistical analysis results, and classification results from the paper, use the following download given below links (links to replicated analysis are provided as well). If you wish to build the plots from scratch or perform classification from scratch see the below sections.
 
-- [Paper results](https://drive.google.com/file/d/1CFKI6Yyc3X_7l4rASvD1AcJgPUKEnHoI/view?usp=sharing)
-- [Replication results](https://drive.google.com/file/d/1LcDOnzln4BFzB7RvLZMvEA-wG7p9GdFk/view?usp=share_link) (Additional run of the results to help verify replicability)
+- Paper
+  - [Classification results](https://drive.google.com/file/d/14IctHzHOm1UTeq4fO8DIep0UoVJP8dUY/view?usp=share_link)
+  - [Statistical analysis results and plots](https://drive.google.com/file/d/1CFKI6Yyc3X_7l4rASvD1AcJgPUKEnHoI/view?usp=sharing)
+- Replication
+  - [Classification results](https://drive.google.com/file/d/11GIog1bpSASE-sUFjvq24MWcQa1h2bdl/view?usp=sharing)
+  - [Statistical analysis results and plots](https://drive.google.com/file/d/1LcDOnzln4BFzB7RvLZMvEA-wG7p9GdFk/view?usp=share_link) 
 
-# About
-*WARNING: This repository is highly volatile and frequent reworks are often conducted!*
+# Environment
 
-Deep-bci is a repository for running deep learning algorithms on a biosensing data. The current focus of the project is on EEG data, deep neural networks, and deep reinforcement learning. 
+## Conda Environment 
+*Warning: These requirements may diverge from the main branch requirements in the future!*
 
-The goal of this repository is to allow for biosensing datasets to be combined and utilized by deep learning algorithms. If you know anything about biosensing datasets or EEG datasets you should know how each dataset is usually uniquely formatted. One of the main goals of this projects is to equalize all the diverse datasets within the biosensing field so that they can be used in conjunction with one anther. The target audience for this project are those who "wish to be close to the code". This repository should be interacted with and edited. 
+To use this branch of the repository you will need to setup the conda environment or simply install the dependencies listed. All dependencies are provided in the conda yaml file below. Refer to conda's official [instructions](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file) for creating a conda environment from a yaml file.
 
-# Requirements 
-To use this repository you will need to setup the following conda environment (or simply acquire the listed dependencies below). The below are the contents of a yaml file for automatically creating a conda environment. Refer to conda's official [instructions](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file) for creating a conda environment from a yaml file.
-
-Alternatively, you can use a pre-built Docker containers (see the Docker section below).
 ```
 name: mlenv
 channels:
@@ -57,25 +57,24 @@ dependencies:
     - pygame
     - zepid==0.9.0
 ```
-# Docker
-
-If you are using Linux or Windows Linux Subsystem (WSL), it is highly recommended that you use the pre-built Docker containers or build your own Docker contain. Docker contains will contain all the necessary packages and requirements for running the code and make dependency handling vastly easier!
+## Docker Environment
+Alternatively, if you are using Linux or Windows Linux Subsystem (WSL), it is highly recommended that you use the pre-built Docker containers or build your own Docker contain. Docker contains will contain all the necessary packages and requirements for running the code and make dependency handling vastly easier!
 
 If you wish to utilize a local GPU you will need to use a version of Linux where [nvidia-docker](https://docs.nvidia.com/ai-enterprise/deployment-guide/dg-docker.html) is supported. The nvidia-docker allows users to mount their GPUs into a docker container, which is crucial for deep learning. WSL has support for GPUs only on Windows 10 insider builds and Windows 11.
 
-The main Docker image is the `deep-bci:tf` which contains [TensorFlow with GPU](https://hub.docker.com/repository/docker/bpoole908/deep-bci). Even if you don't have a GPU this is still the image you should work with. Note, that none of the `deep-bci` images contain the deep-bci repository code. Thus, you will need to mount your deep-bci directory into the container. If you make your container by sourcing the environment script  `docker/env.sh`, these alias commands will mount your repository automatically. 
+The Docker image for the CIBCI branch is called `deep-bci:cibci` and can be manually download from [DockerHub](https://hub.docker.com/repository/docker/bpoole908/deep-bci) if needed. Note, that none of the `deep-bci` images contain the deep-bci repository code. Thus, you will need to mount your deep-bci directory into the container. If you follow the recommended instructions below, you'll download the required image and create your container by sourcing the environment script  `docker/env.sh`. The below instructions will also automatically mount the deep-bci repository into your container. 
 
-## Building Containers
-There are easy to access commands that can be used by sourcing the environment script located at `./deep-bci/docker/env.sh` script. There are various commands you can pass to this environment script which will help determine how the container is made (privileges) and which image tags to download.
+### Running the Container
+To quickly pull the docker image and create a running container it is recommended that you utilize the existing `deep-bci/docker/env.sh` environment script. By sourcing this script, various aliases will be added to your command line. Depending on your OS and setup, you may have to manipulate some arguments within this file. For instance, it is possible to change the UID and GID if your system does not default to `1000:10`.
 
-*Note: All of the following commands should be ran from the root directory of deep-bci!*
+*Note: All of the following commands should be ran from the root directory of the deep-bci repository.*
 
-First, we must source the `env.sh` script to get access to the alias build commands.
+To source the environment script to access the various alias build commands, enter the following command.
 ```
 source docker/env.sh
 ```
 
-Once done, we can run one of the aliases to temporarily build a container with no GPU. We can do soo by running the below command which will build, attach, and then destroy said container upon shutdown. 
+Once done, you can run one of the aliases to temporarily build a container with no GPU. You can do soo by running the below command which will build, automatically attach you to the container, and then destroy said container upon exiting the container by running the `dbci-attach` alias command. 
 
 ```
 dbci-attach
@@ -87,7 +86,7 @@ To make a temporary container with a GPU, simply use the following command.
 dbci-gpu-attach
 ```
 
-If you want a persistent container you can use the following command. This command will build a docker container that will not be destroyed when shutdown. 
+If you want a persistent container you can use the following command. This command will build a docker container that will not be destroyed after you exit the container. 
 
 ```
 # No GPU
@@ -97,38 +96,42 @@ dbci-make
 dbci-gpu-make
 ```
 
-Upon running this command the container will start running. However, you will have to manually attach to the container using the following command.
-
-*Note: If you are not using the `tf` image tag you need to replace `tf` with whatever the image tag name is!*
+Upon running a variation of the `-make` command the container will start running. However, you will have to manually attach to the container using the following command.
 
 ```
 # No GPU
-docker attach dbci-tf
+docker attach dbci-cibci
 
 # GPU
-docker attach dbci-gpu-tf
+docker attach dbci-gpu-cibci
 ```
 
-# Brief overview
-Below is a brief overview of what each directory or module does within (and without) the deep-bci repository.
+### Building an Image
+To build a Docker image from scratch you can run the following command. It is highly recommended you use the the pre-built image unless you are very familiar with Docker. 
 
-## deepbci/ 
-Within this directory is all the code the relates to the deepbci module. Any code outside the deep-bci directory can not be accessed through the imported deepbci module.
+```
+docker build -f docker/Dockerfile -t bpoole908/deep-bci:cibci --force-rm --no-cache --build-arg VERSION=tf .
+```
 
-### deepbci/games/
-The `games/` directory contains tasks that are paired with EEG recording for data collection. These tasks can be used for deep reinforcement learning as well.
+# Running Classification
+*Coming soon: we have not yet released the data but are working on doing so. Until then, users will have to download our classification results.*
 
-### deepbci/models/
-The `models/` directory contains all the code related to machine learning algorithms. If you want to add new algorithms then you can do so by adding them here. Make sure to you implement the necessary base classes (abstract classes) if you wish to do so.
+# Running Statistical Analysis and Building Plots
 
-Currently, the code base ONLY supports the Sklearn and TensorFlow libraries. There are plans to support PyTorch in the future.
+All code for building plots is contained within jupyter notebooks. The notebooks for building statistical analysis plots are located in `deep-bci/scripts/classification` directory. There are two notebooks for building the result plots: `significance_analysis.ipynb` and `significance_visualization.ipynb`. More detailed instructions about the code are given within the notebooks. It is important to note that these notebooks provide code for automatically downloading the classification results.
 
-### deepbci/data_utils/
-The `data_utils/` directory contains all the code loading, grouping, and transforming/pre-processing (we call mutating) BCI data. If you wish to add new datasets that can be loaded and utilized by this repository here is where you would do so. Make sure to you implement the necessary base classes (abstract classes) if you wish to do so.
+The `significance_analysis.ipynb` notebook contains all the code for generating the statistical analysis results. The `significance_visualization.ipynb` notebook contains all the code for visualizing and plotting the  statistical analysis results. To build and visualize the results from the paper simply run the all cells in `significance_analysis.ipynb` first and then run all cells in `significance_visualization.ipynb`. These notebooks can also be modified to use your own classification results if they were produced by this repository.
 
-### deepbci/utils
-The `utils/` directory contains all code considered to be "utilities". This directory contains a wide verity of code and is currently where most of the helper functions are put. *WARNING: this code is highly unorganized and will be reworked greatly at a later date.*
+The `plotly_signal_vis_gui.ipynb` notebook is used for building the grand average plots and is located within the `deep-bci/scripts/data-exploration` directory. *Warning: this notebook requires access to the raw EEG data which is not available yet.**
 
-## scripts/
-This directory is not contained within the deep-bci repository but examples of how to use the repository to train classifiers, visualize BCI data, build the our data, and conduct BCI experiments. *WARNING: this code is highly unstable and frequently changes!* See the `./deep-bci/experiments/classification/readme.md` for more details for conducting you own experiments (no coding necessary, just editing of config files).
+# Citation
 
+```
+@inproceedings{poole_errpvar_2022,
+    title = {Error-related Potential Variability: Exploring the Effects on Classification and Transferability},
+    author = {Poole, Benjamin and Lee, Minwoo},
+    booktitle={IEEE Symposium Series on Computational Intelligence in Brain-Computer Interfaces},
+    year = {2022},
+    organization={IEEE}
+}
+```
