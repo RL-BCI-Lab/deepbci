@@ -1,6 +1,6 @@
 # CIBCI 2022
 
-This branch is dedicated to reproducing the results reported in our paper [*Error-related Potential Variability: Exploring the Effects on Classification and Transferability*]().
+This branch is dedicated to reproducing the results reported in our paper [*Error-related Potential Variability: Exploring the Effects on Classification and Transferability*](https://arxiv.org/abs/2301.06555).
 
 # Quick Start
 To simply download all the pre-built results including plots, statistical analysis results, and classification results from the paper, use the following download given below links (links to replicated analysis are provided as well). If you wish to build the plots from scratch or perform classification from scratch see the below sections.
